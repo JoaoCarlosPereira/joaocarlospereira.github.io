@@ -1,0 +1,89 @@
+/* Fixes de responsividade */
+
+/* Correção para títulos longos */
+.h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+/* Correção para texto em cards */
+.card-text, .card-body p {
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+}
+
+/* Melhora a responsividade dos botões no contacto */
+.btn-sm, .btn-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 576px) {
+    .btn {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Ajuste de largura para cards em telas pequenas */
+@media (max-width: 768px) {
+    .card {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    .card-body {
+        padding: 1.25rem;
+    }
+}
+
+/* Melhora a responsividade do navbar */
+.navbar-toggler {
+    margin-left: auto;
+}
+
+@media (max-width: 992px) {
+    .navbar-nav {
+        margin-top: 1rem;
+    }
+    .nav-item {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Melhora a responsividade dos cards de experiência */
+@media (max-width: 992px) {
+    .experience-card .col {
+        width: 100%;
+    }
+
+    .experience-card .col-lg-8 {
+        margin-top: 1rem;
+    }
+}
+
+/* Melhora a responsividaded dos itens de habilidade */
+.skill-item {
+    min-width: 180px;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .skill-item {
+        min-width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Melhora a responsividaded dos botões de contato */
+.contact-btn {
+    flex: 1 1 auto;
+    min-width: 120px;
+}
+
+@media (max-width: 480px) {
+    .contact-btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
