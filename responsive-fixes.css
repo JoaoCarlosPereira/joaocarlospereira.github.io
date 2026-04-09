@@ -313,6 +313,11 @@ body.pacman-tech-theme .feature.bg-primary {
     margin: 0 auto;
 }
 
+.projects-cta {
+    max-width: 920px;
+    margin: 0 auto;
+}
+
 @media (max-width: 1199.98px) {
     header .row.gx-5.align-items-center {
         flex-direction: column-reverse;
