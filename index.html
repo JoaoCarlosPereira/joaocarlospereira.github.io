@@ -222,7 +222,7 @@
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
         <style>
-            .animated-bg {
+            .pacman-bg {
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -231,41 +231,121 @@
                 z-index: -1;
                 overflow: hidden;
             }
-            .circle {
+
+            .pacman {
                 position: absolute;
-                background: rgba(0, 100, 200, 0.1);
+                width: 30px;
+                height: 30px;
+                background-color: #FFD700;
                 border-radius: 50%;
-                animation: move 15s infinite linear;
+                animation: movePacman 8s infinite linear;
             }
-            @keyframes move {
-                0% {
-                    transform: translate(0, 0) rotate(0deg);
-                }
-                100% {
-                    transform: translate(100px, -200px) rotate(360deg);
-                }
+
+            .pacman::before {
+                content: '';
+                position: absolute;
+                width: 15px;
+                height: 30px;
+                background-color: transparent;
+                border-top-left-radius: 30px;
+                border-bottom-left-radius: 30px;
+                left: 0;
+                top: 0;
+                transform-origin: right center;
+                animation: munch 0.3s infinite alternate;
+            }
+
+            .ghost {
+                position: absolute;
+                width: 25px;
+                height: 30px;
+                border-radius: 15px 15px 0 0;
+                animation: moveGhost 10s infinite linear;
+            }
+
+            .ghost::before {
+                content: '';
+                position: absolute;
+                width: 25px;
+                height: 10px;
+                background: repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px,
+                    transparent 2px,
+                    currentColor 2px,
+                    currentColor 4px
+                );
+                bottom: -10px;
+            }
+
+            .dot {
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                background-color: rgba(255, 255, 255, 0.6);
+                border-radius: 50%;
+                animation: fade 4s infinite alternate;
+            }
+
+            @keyframes movePacman {
+                0% { transform: translate(0, 0) rotate(0deg); }
+                25% { transform: translate(100px, 50px) rotate(45deg); }
+                50% { transform: translate(200px, 0) rotate(0deg); }
+                75% { transform: translate(100px, -50px) rotate(-45deg); }
+                100% { transform: translate(0, 0) rotate(0deg); }
+            }
+
+            @keyframes moveGhost {
+                0% { transform: translate(0, 0); }
+                33% { transform: translate(150px, 80px); }
+                66% { transform: translate(50px, 150px); }
+                100% { transform: translate(0, 0); }
+            }
+
+            @keyframes munch {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(-30deg); }
+            }
+
+            @keyframes fade {
+                0% { opacity: 0.3; }
+                100% { opacity: 1; }
             }
         </style>
-        <div class="animated-bg" id="animated-bg"></div>
+        <div class="pacman-bg" id="pacman-bg"></div>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const bg = document.getElementById('animated-bg');
-                const circleCount = 20;
+                const bg = document.getElementById('pacman-bg');
 
-                for (let i = 0; i < circleCount; i++) {
-                    const circle = document.createElement('div');
-                    circle.classList.add('circle');
+                // Create Pac-Man
+                const pacman = document.createElement('div');
+                pacman.classList.add('pacman');
+                bg.appendChild(pacman);
 
-                    const size = Math.random() * 100 + 20;
-                    circle.style.width = size + 'px';
-                    circle.style.height = size + 'px';
-                    circle.style.left = Math.random() * 100 + '%';
-                    circle.style.top = Math.random() * 100 + '%';
-                    circle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                    circle.style.animationDelay = Math.random() * 5 + 's';
-                    circle.style.background = `rgba(${Math.random() * 100}, ${Math.random() * 100 + 50}, ${Math.random() * 100 + 150}, 0.1)`;
+                // Create Ghosts
+                const ghostColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'];
+                for (let i = 0; i < 4; i++) {
+                    const ghost = document.createElement('div');
+                    ghost.classList.add('ghost');
+                    ghost.style.color = ghostColors[i];
+                    ghost.style.left = Math.random() * 80 + '%';
+                    ghost.style.top = Math.random() * 80 + '%';
+                    ghost.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                    ghost.style.animationDelay = Math.random() * 2 + 's';
+                    bg.appendChild(ghost);
+                }
 
-                    bg.appendChild(circle);
+                // Create Dots
+                for (let i = 0; i < 50; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('dot');
+                    dot.style.left = Math.random() * 95 + '%';
+                    dot.style.top = Math.random() * 95 + '%';
+                    dot.style.width = (Math.random() * 6 + 4) + 'px';
+                    dot.style.height = (Math.random() * 6 + 4) + 'px';
+                    dot.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    dot.style.animationDelay = Math.random() * 2 + 's';
+                    bg.appendChild(dot);
                 }
             });
         </script>
