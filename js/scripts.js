@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let pellets = [];
     let ghosts = [];
     let sparks = [];
+    let codeSymbols = [];
+    let circuitNodes = [];
+    let terminalBlocks = [];
     let pacman = null;
     let animationId = 0;
     let lastFrame = 0;
@@ -42,6 +45,9 @@ document.addEventListener('DOMContentLoaded', function () {
         pellets = [];
         ghosts = [];
         sparks = [];
+        codeSymbols = [];
+        circuitNodes = [];
+        terminalBlocks = [];
 
         for (let i = 0; i < laneCount; i++) {
             const y = spacing * (i + 1);
@@ -95,6 +101,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 color: ghostPalette[i]
             });
         }
+
+        const glyphs = ['</>', '{ }', '[]', '()', '01', '=>', 'fn', 'SQL'];
+        const symbolCount = Math.max(14, Math.round((width * height) / 52000));
+        const nodeCount = Math.max(8, Math.round(width / 180));
+        const terminalCount = Math.max(3, Math.round(width / 420));
+
+        for (let i = 0; i < symbolCount; i++) {
+            codeSymbols.push({
+                text: glyphs[i % glyphs.length],
+                x: Math.random() * width,
+                y: Math.random() * height,
+                size: 11 + Math.random() * 9,
+                alpha: 0.08 + Math.random() * 0.1,
+                drift: 0.2 + Math.random() * 0.55,
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+
+        for (let i = 0; i < nodeCount; i++) {
+            const x = (width / (nodeCount + 1)) * (i + 1);
+            circuitNodes.push({
+                x,
+                y: height * (0.18 + (i % 4) * 0.17),
+                pulse: Math.random() * Math.PI * 2,
+                width: 80 + Math.random() * 90
+            });
+        }
+
+        for (let i = 0; i < terminalCount; i++) {
+            terminalBlocks.push({
+                x: 40 + i * ((width - 80) / terminalCount),
+                y: 40 + (i % 2) * 58,
+                width: 88 + Math.random() * 42,
+                height: 30 + Math.random() * 10,
+                alpha: 0.08 + Math.random() * 0.05
+            });
+        }
     }
 
     function laneY(laneIndex, x, time) {
@@ -120,6 +163,68 @@ document.addEventListener('DOMContentLoaded', function () {
             ctx.lineTo(width, y + Math.cos(time * 0.00025 + y * 0.01) * 6);
             ctx.stroke();
         }
+
+        ctx.restore();
+    }
+
+    function drawProgrammingLayer(time) {
+        ctx.save();
+
+        circuitNodes.forEach(function (node, index) {
+            const pulse = (Math.sin(time * 0.002 + node.pulse) + 1) * 0.5;
+            const nodeY = node.y + Math.sin(time * 0.0015 + index) * 6;
+
+            ctx.strokeStyle = 'rgba(124, 231, 255, 0.08)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(node.x - node.width, nodeY);
+            ctx.lineTo(node.x - 18, nodeY);
+            ctx.lineTo(node.x - 6, nodeY - 12);
+            ctx.lineTo(node.x + 10, nodeY - 12);
+            ctx.lineTo(node.x + 24, nodeY);
+            ctx.lineTo(node.x + node.width, nodeY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(124, 231, 255, ' + (0.16 + pulse * 0.24) + ')';
+            ctx.shadowColor = 'rgba(124, 231, 255, 0.25)';
+            ctx.shadowBlur = 12;
+            ctx.arc(node.x, nodeY, 2.4 + pulse * 2.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+
+        terminalBlocks.forEach(function (block, index) {
+            const wobble = Math.sin(time * 0.0014 + index * 0.9) * 4;
+            const x = block.x + wobble;
+            const y = block.y;
+
+            ctx.fillStyle = 'rgba(7, 15, 28, ' + block.alpha + ')';
+            ctx.strokeStyle = 'rgba(124, 231, 255, 0.08)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(x, y, block.width, block.height, 9);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(124, 231, 255, 0.2)';
+            ctx.beginPath();
+            ctx.arc(x + 12, y + 10, 2.2, 0, Math.PI * 2);
+            ctx.arc(x + 20, y + 10, 2.2, 0, Math.PI * 2);
+            ctx.arc(x + 28, y + 10, 2.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(216, 231, 255, 0.18)';
+            ctx.font = '11px "Plus Jakarta Sans", monospace';
+            ctx.fillText('> run skill_' + (index + 1), x + 11, y + 23);
+        });
+
+        codeSymbols.forEach(function (symbol) {
+            const y = symbol.y + Math.sin(time * 0.0013 * symbol.drift + symbol.phase) * 7;
+            ctx.fillStyle = 'rgba(124, 231, 255, ' + symbol.alpha + ')';
+            ctx.font = symbol.size + 'px "Plus Jakarta Sans", monospace';
+            ctx.fillText(symbol.text, symbol.x, y);
+        });
 
         ctx.restore();
     }
@@ -282,6 +387,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         ctx.clearRect(0, 0, width, height);
         drawGrid(time);
+        drawProgrammingLayer(time);
         drawLanes(time);
         drawPellets(time, delta);
         drawPacman(time, delta);
@@ -298,6 +404,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderStatic(time) {
         ctx.clearRect(0, 0, width, height);
         drawGrid(time);
+        drawProgrammingLayer(time);
         drawLanes(time);
         drawPellets(time, 0.016);
         drawPacman(time, 0.016);
