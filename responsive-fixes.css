@@ -87,3 +87,223 @@
         margin-bottom: 0.5rem;
     }
 }
+
+/* Paleta alinhada ao fundo tech inspirado em Pac-Man */
+:root {
+    --bs-primary: #34d3ff;
+    --bs-primary-rgb: 52, 211, 255;
+    --bs-secondary: #ffd166;
+    --bs-secondary-rgb: 255, 209, 102;
+    --bs-info: #7ce7ff;
+    --bs-info-rgb: 124, 231, 255;
+    --bs-warning: #ffb703;
+    --bs-warning-rgb: 255, 183, 3;
+    --bs-dark: #0b1020;
+    --bs-dark-rgb: 11, 16, 32;
+    --bs-body-color: #d8e7ff;
+    --bs-body-color-rgb: 216, 231, 255;
+    --bs-body-bg: #08101c;
+    --bs-body-bg-rgb: 8, 16, 28;
+    --bs-link-color: #7ce7ff;
+    --bs-link-hover-color: #ffd166;
+    --bs-code-color: #ffd166;
+}
+
+body {
+    color: var(--bs-body-color);
+}
+
+.text-primary {
+    color: #7ce7ff !important;
+}
+
+.text-muted {
+    color: rgba(216, 231, 255, 0.72) !important;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #34d3ff 0%, #7ce7ff 42%, #ffd166 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.bg-gradient-primary-to-secondary {
+    background: linear-gradient(135deg, #123253 0%, #1d6fa3 46%, #ffd166 100%) !important;
+}
+
+.btn-primary {
+    --bs-btn-color: #06111f;
+    --bs-btn-bg: #34d3ff;
+    --bs-btn-border-color: #34d3ff;
+    --bs-btn-hover-color: #06111f;
+    --bs-btn-hover-bg: #7ce7ff;
+    --bs-btn-hover-border-color: #7ce7ff;
+    --bs-btn-focus-shadow-rgb: 52, 211, 255;
+    --bs-btn-active-color: #06111f;
+    --bs-btn-active-bg: #22c7f4;
+    --bs-btn-active-border-color: #22c7f4;
+    --bs-btn-disabled-color: #06111f;
+    --bs-btn-disabled-bg: #34d3ff;
+    --bs-btn-disabled-border-color: #34d3ff;
+    box-shadow: 0 12px 30px rgba(52, 211, 255, 0.22);
+}
+
+.btn-outline-dark {
+    --bs-btn-color: #d8e7ff;
+    --bs-btn-border-color: rgba(124, 231, 255, 0.62);
+    --bs-btn-hover-color: #06111f;
+    --bs-btn-hover-bg: #ffd166;
+    --bs-btn-hover-border-color: #ffd166;
+    --bs-btn-focus-shadow-rgb: 255, 209, 102;
+    --bs-btn-active-color: #06111f;
+    --bs-btn-active-bg: #ffb703;
+    --bs-btn-active-border-color: #ffb703;
+    --bs-btn-disabled-color: #d8e7ff;
+    --bs-btn-disabled-border-color: rgba(124, 231, 255, 0.35);
+    background-color: rgba(8, 16, 28, 0.16);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-outline-dark:hover,
+.btn-outline-dark:focus-visible {
+    box-shadow: 0 12px 30px rgba(255, 209, 102, 0.2);
+}
+
+.navbar-brand,
+.navbar-nav .nav-link,
+footer,
+.lead,
+.small {
+    color: #d8e7ff !important;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus,
+.navbar-nav .nav-link.active,
+a:hover .text-gradient,
+a.text-gradient:hover {
+    color: #ffd166 !important;
+}
+
+.badge.bg-gradient-primary-to-secondary {
+    color: #06111f !important;
+    box-shadow: 0 10px 24px rgba(255, 209, 102, 0.22);
+}
+
+.profile {
+    box-shadow: 0 30px 80px rgba(4, 10, 20, 0.35);
+}
+
+.profile .dots-1 svg,
+.profile .dots-2 svg,
+.profile .dots-3 svg,
+.profile .dots-4 svg {
+    fill: rgba(124, 231, 255, 0.55);
+}
+
+body.pacman-tech-theme {
+    background:
+        radial-gradient(circle at top left, rgba(30, 48, 243, 0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(13, 202, 240, 0.12), transparent 24%),
+        linear-gradient(180deg, #06111f 0%, #0a1628 48%, #08101c 100%);
+    overflow-x: hidden;
+}
+
+#pacman-background {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.95;
+}
+
+main,
+footer {
+    position: relative;
+    z-index: 1;
+}
+
+body.pacman-tech-theme .navbar,
+body.pacman-tech-theme footer.bg-white,
+body.pacman-tech-theme section.bg-light,
+body.pacman-tech-theme .card,
+body.pacman-tech-theme .bg-light.rounded-4,
+body.pacman-tech-theme .pacman-panel {
+    background-color: rgba(7, 15, 28, 0.78) !important;
+    border: 1px solid rgba(124, 231, 255, 0.12) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+body.pacman-tech-theme .card,
+body.pacman-tech-theme .bg-light.rounded-4,
+body.pacman-tech-theme .pacman-panel {
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.pacman-tech-theme header .container,
+body.pacman-tech-theme section .container,
+body.pacman-tech-theme footer .container {
+    position: relative;
+    z-index: 1;
+}
+
+body.pacman-tech-theme .text-center.text-xxl-start,
+body.pacman-tech-theme .text-center.my-5,
+body.pacman-tech-theme .text-center.mb-5,
+body.pacman-tech-theme .pacman-panel {
+    background: rgba(7, 15, 28, 0.68);
+    border: 1px solid rgba(124, 231, 255, 0.1);
+    border-radius: 1.5rem;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    padding: 2rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+body.pacman-tech-theme .card-body,
+body.pacman-tech-theme .card-body p,
+body.pacman-tech-theme .card-body div,
+body.pacman-tech-theme .card-body h2,
+body.pacman-tech-theme .card-body h3,
+body.pacman-tech-theme .card-body h4,
+body.pacman-tech-theme .card-body span,
+body.pacman-tech-theme .bg-light.p-4,
+body.pacman-tech-theme .d-flex.align-items-center.bg-light.rounded-4,
+body.pacman-tech-theme .bg-light.rounded-4.py-5,
+body.pacman-tech-theme .bg-light.rounded-4.p-3 {
+    color: #d8e7ff !important;
+}
+
+body.pacman-tech-theme .bg-light.p-4,
+body.pacman-tech-theme .d-flex.align-items-center.bg-light.rounded-4,
+body.pacman-tech-theme .bg-light.rounded-4.py-5,
+body.pacman-tech-theme .bg-light.rounded-4.p-3 {
+    background-color: rgba(13, 24, 44, 0.92) !important;
+    border: 1px solid rgba(124, 231, 255, 0.08);
+}
+
+body.pacman-tech-theme .feature.bg-primary {
+    box-shadow: 0 12px 30px rgba(52, 211, 255, 0.22);
+}
+
+@media (max-width: 991.98px) {
+    body.pacman-tech-theme .navbar,
+    body.pacman-tech-theme footer.bg-white,
+    body.pacman-tech-theme section.bg-light,
+    body.pacman-tech-theme .card,
+    body.pacman-tech-theme .bg-light.rounded-4,
+    body.pacman-tech-theme .pacman-panel {
+        background-color: rgba(7, 15, 28, 0.88) !important;
+    }
+
+    body.pacman-tech-theme .text-center.text-xxl-start,
+    body.pacman-tech-theme .text-center.my-5,
+    body.pacman-tech-theme .text-center.mb-5,
+    body.pacman-tech-theme .pacman-panel {
+        padding: 1.5rem;
+    }
+}

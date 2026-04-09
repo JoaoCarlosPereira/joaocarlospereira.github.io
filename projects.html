@@ -18,7 +18,8 @@
         <link href="css/styles.css" rel="stylesheet" />
         <link href="responsive-fixes.css" rel="stylesheet" />
     </head>
-    <body class="d-flex flex-column h-100 bg-light">
+    <body class="d-flex flex-column h-100 bg-light pacman-tech-theme">
+        <canvas id="pacman-background" aria-hidden="true"></canvas>
         <main class="flex-shrink-0">
             <!-- Navigation-->
             <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
@@ -34,7 +35,7 @@
                         </ul>
                     </div>
                 </div>
-            </nav
+            </nav>
             <!-- Projects Section-->
             <section class="py-5">
                 <div class="container px-5 mb-5">
@@ -114,53 +115,5 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
-        <style>
-            .animated-bg {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: -1;
-                overflow: hidden;
-            }
-            .circle {
-                position: absolute;
-                background: rgba(0, 100, 200, 0.1);
-                border-radius: 50%;
-                animation: move 15s infinite linear;
-            }
-            @keyframes move {
-                0% {
-                    transform: translate(0, 0) rotate(0deg);
-                }
-                100% {
-                    transform: translate(100px, -200px) rotate(360deg);
-                }
-            }
-        </style>
-        <div class="animated-bg" id="animated-bg"></div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const bg = document.getElementById('animated-bg');
-                const circleCount = 20;
-
-                for (let i = 0; i < circleCount; i++) {
-                    const circle = document.createElement('div');
-                    circle.classList.add('circle');
-
-                    const size = Math.random() * 100 + 20;
-                    circle.style.width = size + 'px';
-                    circle.style.height = size + 'px';
-                    circle.style.left = Math.random() * 100 + '%';
-                    circle.style.top = Math.random() * 100 + '%';
-                    circle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                    circle.style.animationDelay = Math.random() * 5 + 's';
-                    circle.style.background = `rgba(${Math.random() * 100}, ${Math.random() * 100 + 50}, ${Math.random() * 100 + 150}, 0.1)`;
-
-                    bg.appendChild(circle);
-                }
-            });
-        </script>
     </body>
 </html>
