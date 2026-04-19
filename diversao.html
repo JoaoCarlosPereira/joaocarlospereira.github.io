@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Área de diversão com mini jogos clássicos em canvas no portfólio de João Carlos Pereira." />
+        <meta name="author" content="" />
+        <meta property="og:locale" content="pt_BR" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="João Carlos Pereira | Diversão" />
+        <meta property="og:description" content="Catálogo de mini jogos clássicos em canvas, com Pac-Man jogável." />
+        <meta property="og:image" content="https://joaocarlospereira.github.io/assets/profile.png" />
+        <meta property="og:url" content="https://joaocarlospereira.github.io/diversao.html" />
+        <meta property="og:site_name" content="João Carlos Pereira" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="João Carlos Pereira | Diversão" />
+        <meta name="twitter:description" content="Catálogo de mini jogos clássicos em canvas, com Pac-Man jogável." />
+        <meta name="twitter:image" content="https://joaocarlospereira.github.io/assets/profile.png" />
+        <title>João Carlos - Diversão</title>
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet" />
+        <link href="css/styles.css" rel="stylesheet" />
+        <link href="responsive-fixes.css" rel="stylesheet" />
+    </head>
+    <body class="d-flex flex-column h-100 pacman-tech-theme arcade-page">
+        <canvas id="pacman-background" aria-hidden="true"></canvas>
+        <main class="flex-shrink-0">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+                <div class="container px-5">
+                    <a class="navbar-brand" href="index.html"><span class="fw-bolder text-primary">João Carlos Pereira</span></a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
+                            <li class="nav-item"><a class="nav-link" href="index.html">Início</a></li>
+                            <li class="nav-item"><a class="nav-link" href="resume.html">Carreira</a></li>
+                            <li class="nav-item"><a class="nav-link" href="projects.html">Formações</a></li>
+                            <li class="nav-item"><a class="nav-link" href="miriam-ai.html">Miriam AI</a></li>
+                            <li class="nav-item"><a class="nav-link active" href="diversao.html">Diversão</a></li>
+                            <li class="nav-item"><a class="nav-link" href="contact.html">Contato</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <section class="py-5 arcade-hero">
+                <div class="container px-5">
+                    <div class="pacman-panel arcade-hero-panel">
+                        <div class="row gx-5 align-items-center">
+                            <div class="col-lg-7">
+                                <div class="badge bg-gradient-primary-to-secondary text-white mb-4"><div class="text-uppercase">Canvas &middot; Arcade &middot; Mini jogos</div></div>
+                                <h1 class="display-5 fw-bolder mb-3"><span class="text-gradient d-inline">Área de Diversão</span></h1>
+                                <p class="lead fw-light mb-0">Um catálogo de jogos clássicos com visual tech, controles simples e espaço para novos desafios.</p>
+                            </div>
+                            <div class="col-lg-5 mt-4 mt-lg-0">
+                                <div class="arcade-preview" aria-hidden="true">
+                                    <div class="arcade-preview-pacman"></div>
+                                    <span></span><span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="pb-5">
+                <div class="container px-5">
+                    <div class="arcade-catalog">
+                        <article class="arcade-game-card arcade-game-card-active">
+                            <div class="arcade-game-icon"><i class="bi bi-controller"></i></div>
+                            <div>
+                                <h2>Pac-Man Tech</h2>
+                                <p>Coma os pontos, fuja dos fantasmas e use as pastilhas de energia para virar o jogo.</p>
+                            </div>
+                            <a class="btn btn-primary px-4" href="#pacman-game">Jogar</a>
+                        </article>
+                        <article class="arcade-game-card arcade-game-card-locked">
+                            <div class="arcade-game-icon"><i class="bi bi-plus-lg"></i></div>
+                            <div>
+                                <h2>Próximo clássico</h2>
+                                <p>Espaço reservado para novos mini jogos no mesmo catálogo.</p>
+                            </div>
+                            <span class="arcade-soon">Em breve</span>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pacman-game" class="pb-5">
+                <div class="container px-5">
+                    <div class="pacman-panel arcade-machine">
+                        <div class="arcade-machine-header">
+                            <div>
+                                <p class="arcade-kicker">Mini jogo 01</p>
+                                <h2 class="fw-bolder mb-0">Pac-Man Tech</h2>
+                            </div>
+                            <div class="arcade-scoreboard" aria-live="polite">
+                                <span>Pontos <strong id="pacman-score">0</strong></span>
+                                <span>Vidas <strong id="pacman-lives">3</strong></span>
+                                <span>Nivel <strong id="pacman-level">1</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="arcade-game-layout">
+                            <div class="arcade-screen">
+                                <canvas id="pacman-game-canvas" width="608" height="704" aria-label="Jogo Pac-Man em canvas"></canvas>
+                                <button id="pacman-message" class="arcade-message" type="button">Pressione iniciar</button>
+                            </div>
+
+                            <aside class="arcade-controls">
+                                <button id="pacman-start" class="btn btn-primary w-100" type="button"><i class="bi bi-play-fill"></i> Iniciar</button>
+                                <button id="pacman-pause" class="btn btn-outline-dark w-100" type="button"><i class="bi bi-pause-fill"></i> Pausar</button>
+                                <button id="pacman-reset" class="btn btn-outline-dark w-100" type="button"><i class="bi bi-arrow-clockwise"></i> Reiniciar</button>
+                                <div class="arcade-help">
+                                    <span><i class="bi bi-keyboard"></i> Setas ou WASD</span>
+                                    <span><i class="bi bi-phone"></i> Controles na tela</span>
+                                </div>
+                                <div class="arcade-dpad" aria-label="Controles direcionais">
+                                    <button data-dir="up" type="button" aria-label="Mover para cima"><i class="bi bi-caret-up-fill"></i></button>
+                                    <button data-dir="left" type="button" aria-label="Mover para esquerda"><i class="bi bi-caret-left-fill"></i></button>
+                                    <button data-dir="right" type="button" aria-label="Mover para direita"><i class="bi bi-caret-right-fill"></i></button>
+                                    <button data-dir="down" type="button" aria-label="Mover para baixo"><i class="bi bi-caret-down-fill"></i></button>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer class="bg-white py-4 mt-auto">
+            <div class="container px-5">
+                <div class="row align-items-center justify-content-between flex-column flex-sm-row">
+                    <div class="col-auto"><div class="small m-0">Copyright &copy; João Carlos Pereira 2026</div></div>
+                </div>
+            </div>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="js/scripts.js"></script>
+        <script src="js/arcade.js?v=3"></script>
+    </body>
+</html>
