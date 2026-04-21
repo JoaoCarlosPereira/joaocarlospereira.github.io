@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let pacman = null;
     let animationId = 0;
     let lastFrame = 0;
+    
+    // Estado global de Power Mode
+    let powerModeTimer = 0;
 
     function resizeCanvas() {
         width = window.innerWidth;
@@ -56,7 +59,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const phase = i * 0.8;
             lanes.push({ y, amplitude, speed, phase });
 
-            const pelletGap = 54 + (i % 2) * 12;
+            // DIMINUÍDO BASTANTE: Aumentado gap de 54 para 120+
+            const pelletGap = 120 + (i % 2) * 40;
             const pelletCount = Math.ceil((width + 280) / pelletGap);
 
             for (let j = 0; j < pelletCount; j++) {
@@ -64,9 +68,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     lane: i,
                     x: j * pelletGap - 140,
                     baseY: y,
-                    radius: j % 9 === 0 ? 4.8 : 3.1,
-                    alpha: j % 9 === 0 ? 0.95 : 0.75,
-                    offset: (j % 4) * 0.9
+                    radius: j % 5 === 0 ? 4.8 : 3.1, // Bolinhas grandes mais frequentes para o efeito power
+                    alpha: j % 5 === 0 ? 0.95 : 0.75,
+                    offset: (j % 4) * 0.9,
+                    eaten: false,
+                    respawnTimer: 0
                 });
             }
         }
@@ -78,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
             y: lanes[activeLane].y,
             radius: 18,
             speed: Math.max(82, width * 0.082),
+            direction: 1, // 1 para direita, -1 para esquerda
             mouth: 0,
             mouthSpeed: 7.5
         };
@@ -92,11 +99,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const laneIndex = (activeLane + i + 1) % lanes.length;
             ghosts.push({
                 lane: laneIndex,
-                x: width + 180 + i * 160,
+                x: width + 180 + i * 250,
                 y: lanes[laneIndex].y,
                 width: 28,
                 height: 28,
-                speed: 62 + i * 8,
+                speed: 55 + i * 8,
+                direction: -1,
                 bob: i * 1.5,
                 color: ghostPalette[i]
             });
@@ -149,31 +157,26 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.save();
         ctx.strokeStyle = 'rgba(75, 140, 255, 0.08)';
         ctx.lineWidth = 1;
-
         for (let x = -40; x < width + 40; x += 48) {
             ctx.beginPath();
             ctx.moveTo(x + Math.sin(time * 0.0003 + x * 0.01) * 6, 0);
             ctx.lineTo(x + Math.sin(time * 0.0003 + x * 0.01) * 6, height);
             ctx.stroke();
         }
-
         for (let y = -40; y < height + 40; y += 48) {
             ctx.beginPath();
             ctx.moveTo(0, y + Math.cos(time * 0.00025 + y * 0.01) * 6);
             ctx.lineTo(width, y + Math.cos(time * 0.00025 + y * 0.01) * 6);
             ctx.stroke();
         }
-
         ctx.restore();
     }
 
     function drawProgrammingLayer(time) {
         ctx.save();
-
         circuitNodes.forEach(function (node, index) {
             const pulse = (Math.sin(time * 0.002 + node.pulse) + 1) * 0.5;
             const nodeY = node.y + Math.sin(time * 0.0015 + index) * 6;
-
             ctx.strokeStyle = 'rgba(124, 231, 255, 0.08)';
             ctx.lineWidth = 1.2;
             ctx.beginPath();
@@ -184,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ctx.lineTo(node.x + 24, nodeY);
             ctx.lineTo(node.x + node.width, nodeY);
             ctx.stroke();
-
             ctx.beginPath();
             ctx.fillStyle = 'rgba(124, 231, 255, ' + (0.16 + pulse * 0.24) + ')';
             ctx.shadowColor = 'rgba(124, 231, 255, 0.25)';
@@ -198,7 +200,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const wobble = Math.sin(time * 0.0014 + index * 0.9) * 4;
             const x = block.x + wobble;
             const y = block.y;
-
             ctx.fillStyle = 'rgba(7, 15, 28, ' + block.alpha + ')';
             ctx.strokeStyle = 'rgba(124, 231, 255, 0.08)';
             ctx.lineWidth = 1;
@@ -206,14 +207,12 @@ document.addEventListener('DOMContentLoaded', function () {
             ctx.roundRect(x, y, block.width, block.height, 9);
             ctx.fill();
             ctx.stroke();
-
             ctx.fillStyle = 'rgba(124, 231, 255, 0.2)';
             ctx.beginPath();
             ctx.arc(x + 12, y + 10, 2.2, 0, Math.PI * 2);
             ctx.arc(x + 20, y + 10, 2.2, 0, Math.PI * 2);
             ctx.arc(x + 28, y + 10, 2.2, 0, Math.PI * 2);
             ctx.fill();
-
             ctx.fillStyle = 'rgba(216, 231, 255, 0.18)';
             ctx.font = '11px "Plus Jakarta Sans", monospace';
             ctx.fillText('> run skill_' + (index + 1), x + 11, y + 23);
@@ -225,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ctx.font = symbol.size + 'px "Plus Jakarta Sans", monospace';
             ctx.fillText(symbol.text, symbol.x, y);
         });
-
         ctx.restore();
     }
 
@@ -234,26 +232,27 @@ document.addEventListener('DOMContentLoaded', function () {
             ctx.beginPath();
             ctx.lineWidth = index === pacman.lane ? 2.4 : 1.2;
             ctx.strokeStyle = index === pacman.lane ? 'rgba(52, 211, 255, 0.22)' : 'rgba(52, 211, 255, 0.1)';
-
             for (let x = -80; x <= width + 80; x += 8) {
                 const y = laneY(index, x, time);
-                if (x === -80) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
+                if (x === -80) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
             }
-
             ctx.stroke();
         });
     }
 
     function drawPellets(time, delta) {
         pellets.forEach(function (pellet) {
-            pellet.x -= lanes[pellet.lane].speed * delta;
-
-            if (pellet.x < -160) {
-                pellet.x = width + 160 + Math.random() * 40;
+            // Bolinhas fixas no cenário, mas com respawn
+            if (pellet.eaten) {
+                pellet.respawnTimer += delta;
+                // Resurge se o timer passar de 5s E o pacman estiver longe (> 400px)
+                const distToPacman = Math.abs(pellet.x - pacman.x);
+                if (pellet.respawnTimer > 5 && distToPacman > 400) {
+                    pellet.eaten = false;
+                    pellet.respawnTimer = 0;
+                }
+                return;
             }
 
             const y = laneY(pellet.lane, pellet.x, time) + Math.sin(time * 0.003 + pellet.offset) * 1.5;
@@ -271,32 +270,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function spawnSpark(x, y) {
         sparks.push({
-            x,
-            y,
-            life: 1,
-            radius: 2 + Math.random() * 2,
+            x, y, life: 1, radius: 2 + Math.random() * 2,
             vx: -0.8 - Math.random() * 1.2,
             vy: (Math.random() - 0.5) * 1.2
         });
     }
 
     function drawPacman(time, delta) {
-        pacman.x += pacman.speed * delta;
+        // Movimentação com direção
+        pacman.x += (pacman.speed * pacman.direction) * delta;
 
-        if (pacman.x - pacman.radius > width + 80) {
+        // Reposicionamento nas bordas
+        if (pacman.direction === 1 && pacman.x - pacman.radius > width + 80) {
             pacman.x = -80;
+            pacman.lane = (pacman.lane + 1) % lanes.length;
+        } else if (pacman.direction === -1 && pacman.x + pacman.radius < -80) {
+            pacman.x = width + 80;
             pacman.lane = (pacman.lane + 1) % lanes.length;
         }
 
         pacman.y = laneY(pacman.lane, pacman.x, time);
         pacman.mouth = 0.22 + (Math.sin(time * 0.02 * pacman.mouthSpeed) + 1) * 0.17;
 
+        // Detecção de comer bolinhas
+        pellets.forEach(p => {
+            if (!p.eaten && p.lane === pacman.lane) {
+                const dx = p.x - pacman.x;
+                if (Math.abs(dx) < 20) {
+                    p.eaten = true;
+                    if (p.radius > 4) powerModeTimer = 5; // 5 segundos de Power Mode
+                }
+            }
+        });
+
+        // Detecção de Fantasmas (Fuga)
+        if (powerModeTimer <= 0) {
+            ghosts.forEach(g => {
+                if (g.lane === pacman.lane) {
+                    const dist = g.x - pacman.x;
+                    // Se o fantasma estiver de frente vindo contra o Pac-Man
+                    if (pacman.direction === 1 && dist > 0 && dist < 150) {
+                        pacman.direction = -1;
+                    } else if (pacman.direction === -1 && dist < 0 && dist > -150) {
+                        pacman.direction = 1;
+                    }
+                }
+            });
+        }
+
         if (Math.random() > 0.72) {
-            spawnSpark(pacman.x - pacman.radius * 0.5, pacman.y);
+            spawnSpark(pacman.x - (pacman.radius * 0.5 * pacman.direction), pacman.y);
         }
 
         ctx.save();
         ctx.translate(pacman.x, pacman.y);
+        if (pacman.direction === -1) ctx.scale(-1, 1);
+        
         ctx.fillStyle = '#ffd166';
         ctx.shadowColor = 'rgba(255, 209, 102, 0.55)';
         ctx.shadowBlur = 24;
@@ -314,10 +343,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function drawGhost(ghost, time, delta) {
-        ghost.x -= ghost.speed * delta;
+        // Comportamento do fantasma no Power Mode
+        let isFleeing = powerModeTimer > 0;
+        
+        if (isFleeing) {
+            // Foge do Pacman se estiver na mesma lane
+            if (ghost.lane === pacman.lane) {
+                ghost.direction = (ghost.x > pacman.x) ? 1 : -1;
+            }
+            ghost.x += (ghost.speed * 0.6 * ghost.direction) * delta; // Mais lento ao fugir
+        } else {
+            ghost.direction = -1; // Padrão
+            ghost.x += (ghost.speed * ghost.direction) * delta;
+        }
 
         if (ghost.x < -120) {
             ghost.x = width + 120 + Math.random() * 220;
+            ghost.lane = (ghost.lane + 2) % lanes.length;
+        } else if (ghost.x > width + 120) {
+            ghost.x = -120;
             ghost.lane = (ghost.lane + 2) % lanes.length;
         }
 
@@ -325,8 +369,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         ctx.save();
         ctx.translate(ghost.x, ghost.y);
-        ctx.fillStyle = ghost.color.body;
-        ctx.shadowColor = ghost.color.body;
+        
+        // Cor azul escuro no Power Mode
+        ctx.fillStyle = isFleeing ? '#001a4d' : ghost.color.body;
+        ctx.shadowColor = isFleeing ? '#003399' : ghost.color.body;
         ctx.shadowBlur = 18;
 
         ctx.beginPath();
@@ -345,13 +391,13 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.fill();
 
         ctx.shadowBlur = 0;
-        ctx.fillStyle = ghost.color.eye;
+        ctx.fillStyle = isFleeing ? '#4d79ff' : ghost.color.eye;
         ctx.beginPath();
         ctx.arc(-6, -2, 4.5, 0, Math.PI * 2);
         ctx.arc(6, -2, 4.5, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = '#14213d';
+        ctx.fillStyle = isFleeing ? '#fff' : '#14213d';
         ctx.beginPath();
         ctx.arc(-5 + Math.sin(time * 0.003) * 1.2, -1, 2.1, 0, Math.PI * 2);
         ctx.arc(7 + Math.sin(time * 0.003) * 1.2, -1, 2.1, 0, Math.PI * 2);
@@ -364,11 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
             spark.x += spark.vx * 60 * delta;
             spark.y += spark.vy * 60 * delta;
             spark.life -= 0.03;
-
-            if (spark.life <= 0) {
-                return false;
-            }
-
+            if (spark.life <= 0) return false;
             ctx.beginPath();
             ctx.fillStyle = 'rgba(255, 209, 102, ' + spark.life + ')';
             ctx.arc(spark.x, spark.y, spark.radius * spark.life, 0, Math.PI * 2);
@@ -378,12 +420,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function render(time) {
-        if (!lastFrame) {
-            lastFrame = time;
-        }
-
+        if (!lastFrame) lastFrame = time;
         const delta = Math.min((time - lastFrame) / 1000, 0.033);
         lastFrame = time;
+        
+        if (powerModeTimer > 0) powerModeTimer -= delta;
 
         ctx.clearRect(0, 0, width, height);
         drawGrid(time);
@@ -416,12 +457,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleMotionChange() {
         window.cancelAnimationFrame(animationId);
         lastFrame = 0;
-
-        if (motionQuery.matches) {
-            renderStatic(performance.now());
-        } else {
-            animationId = window.requestAnimationFrame(render);
-        }
+        if (motionQuery.matches) renderStatic(performance.now());
+        else animationId = window.requestAnimationFrame(render);
     }
 
     resizeCanvas();
