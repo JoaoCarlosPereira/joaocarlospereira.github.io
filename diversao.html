@@ -77,13 +77,13 @@
                             </div>
                             <a class="btn btn-primary px-4" href="#pacman-game">Jogar</a>
                         </article>
-                        <article class="arcade-game-card arcade-game-card-locked">
-                            <div class="arcade-game-icon"><i class="bi bi-plus-lg"></i></div>
+                        <article class="arcade-game-card arcade-game-card-active">
+                            <div class="arcade-game-icon"><i class="bi bi-controller"></i></div>
                             <div>
-                                <h2>Próximo clássico</h2>
-                                <p>Espaço reservado para novos experimentos que conectam diversão, automação com IA e evolução do portfólio técnico.</p>
+                                <h2>Snake Tech</h2>
+                                <p>O clássico jogo da cobrinha reinventado com estética neon. Desenvolvido para testar movimentação em grade e renderização eficiente de partículas.</p>
                             </div>
-                            <span class="arcade-soon">Em breve</span>
+                            <a class="btn btn-primary px-4" href="#snake-game">Jogar</a>
                         </article>
                     </div>
                 </div>
@@ -129,6 +129,46 @@
                     </div>
                 </div>
             </section>
+
+            <section id="snake-game" class="pb-5">
+                <div class="container px-5">
+                    <div class="pacman-panel arcade-machine">
+                        <div class="arcade-machine-header">
+                            <div>
+                                <p class="arcade-kicker">Mini jogo 02 · IA LLM local</p>
+                                <h2 class="fw-bolder mb-0">Snake Tech</h2>
+                            </div>
+                            <div class="arcade-scoreboard" aria-live="polite">
+                                <span>Pontos <strong id="snake-score">0</strong></span>
+                                <span>Nivel <strong id="snake-level">1</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="arcade-game-layout">
+                            <div class="arcade-screen">
+                                <canvas id="snake-game-canvas" width="600" height="400" aria-label="Jogo da Cobrinha em canvas"></canvas>
+                                <button id="snake-message" class="arcade-message" type="button">Pressione iniciar</button>
+                            </div>
+
+                            <aside class="arcade-controls">
+                                <button id="snake-start" class="btn btn-primary w-100" type="button"><i class="bi bi-play-fill"></i> Iniciar</button>
+                                <button id="snake-pause" class="btn btn-outline-dark w-100" type="button"><i class="bi bi-pause-fill"></i> Pausar</button>
+                                <button id="snake-reset" class="btn btn-outline-dark w-100" type="button"><i class="bi bi-arrow-clockwise"></i> Reiniciar</button>
+                                <div class="arcade-help">
+                                    <span><i class="bi bi-keyboard"></i> Setas ou WASD</span>
+                                    <span><i class="bi bi-phone"></i> Controles na tela</span>
+                                </div>
+                                <div class="arcade-dpad" aria-label="Controles direcionais">
+                                    <button data-dir="up" type="button" aria-label="Mover para cima"><i class="bi bi-caret-up-fill"></i></button>
+                                    <button data-dir="left" type="button" aria-label="Mover para esquerda"><i class="bi bi-caret-left-fill"></i></button>
+                                    <button data-dir="right" type="button" aria-label="Mover para direita"><i class="bi bi-caret-right-fill"></i></button>
+                                    <button data-dir="down" type="button" aria-label="Mover para baixo"><i class="bi bi-caret-down-fill"></i></button>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
         <footer class="bg-white py-4 mt-auto">
             <div class="container px-5">
@@ -140,5 +180,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="js/scripts.js"></script>
         <script src="js/arcade.js?v=3"></script>
+        <script src="js/snake.js?v=1"></script>
     </body>
 </html>

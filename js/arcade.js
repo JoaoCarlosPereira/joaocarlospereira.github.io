@@ -624,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    document.querySelectorAll('.arcade-dpad button').forEach(function (button) {
+    document.querySelectorAll('#pacman-game .arcade-dpad button').forEach(function (button) {
         button.addEventListener('click', function () {
             setDirection(button.dataset.dir);
             startGame();
