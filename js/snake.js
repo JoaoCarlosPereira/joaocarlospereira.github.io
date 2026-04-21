@@ -29,23 +29,69 @@ document.addEventListener('DOMContentLoaded', function () {
     
     let mouthOpen = 0;
     let mouthSpeed = 0.2;
-    
-    // Sistema de ondas neon
-    let activeWaves = []; // Armazena o índice do segmento onde a onda está
+    let activeWaves = [];
+
+    // --- SISTEMA DE ÁUDIO ---
+    const AudioEngine = {
+        ctx: null,
+        bgmOsc: null,
+        bgmGain: null,
+        bgmInterval: null,
+        notes: [130.81, 146.83, 164.81, 196.00], // C3, D3, E3, G3
+        noteIndex: 0,
+
+        init() {
+            if (this.ctx) return;
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        },
+
+        playSfx(freq, type, duration, slide = 0) {
+            this.init();
+            if (this.ctx.state === 'suspended') this.ctx.resume();
+            
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            if (slide) {
+                osc.frequency.exponentialRampToValueAtTime(slide, this.ctx.currentTime + duration);
+            }
+            
+            gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + duration);
+        },
+
+        startBgm() {
+            this.init();
+            this.stopBgm();
+            this.noteIndex = 0;
+            this.bgmInterval = setInterval(() => {
+                if (!running || paused) return;
+                const freq = this.notes[this.noteIndex];
+                this.playSfx(freq, 'square', 0.15);
+                this.noteIndex = (this.noteIndex + 1) % this.notes.length;
+            }, 250); // Ritmo constante
+        },
+
+        stopBgm() {
+            if (this.bgmInterval) {
+                clearInterval(this.bgmInterval);
+                this.bgmInterval = null;
+            }
+        }
+    };
 
     function initGame() {
-        snake = [
-            { x: 10, y: 10 },
-            { x: 9, y: 10 },
-            { x: 8, y: 10 }
-        ];
-        nextDx = 1;
-        nextDy = 0;
-        dx = 1;
-        dy = 0;
-        score = 0;
-        level = 1;
-        gameSpeed = 100;
+        snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+        nextDx = 1; nextDy = 0; dx = 1; dy = 0;
+        score = 0; level = 1; gameSpeed = 100;
         activeWaves = [];
         spawnFood();
         updateHud();
@@ -77,8 +123,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function draw() {
         ctx.fillStyle = '#050b14';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Grade sutil
         ctx.strokeStyle = 'rgba(124, 231, 255, 0.03)';
         ctx.lineWidth = 1;
         for (let i = 0; i <= canvas.width; i += gridSize) {
@@ -88,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
         }
 
-        // Comida
         ctx.fillStyle = '#ff4d6d';
         ctx.shadowColor = '#ff4d6d';
         ctx.shadowBlur = 15;
@@ -96,42 +139,30 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.arc(food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2, gridSize/2.5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Cobra
         snake.forEach((part, index) => {
             const isHead = index === 0;
-            
-            // Verifica se há uma onda passando por este segmento
-            // Aumentamos o brilho se a onda estiver aqui ou nos vizinhos próximos para um efeito suave
             let hasWave = activeWaves.some(w => Math.abs(w - index) < 2);
-            
             if (isHead) {
                 const centerX = part.x * gridSize + gridSize / 2;
                 const centerY = part.y * gridSize + gridSize / 2;
                 const radius = gridSize / 2 - 1;
-                
                 let angle = 0;
                 if (dx === 1) angle = 0;
                 if (dx === -1) angle = Math.PI;
                 if (dy === -1) angle = -Math.PI / 2;
                 if (dy === 1) angle = Math.PI / 2;
-
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(angle);
-                
-                // Cabeça brilha mais se estiver iniciando uma onda
                 ctx.fillStyle = hasWave ? '#fff' : '#ffd166';
                 ctx.shadowColor = hasWave ? '#fff' : '#ffd166';
                 ctx.shadowBlur = hasWave ? 25 : 15;
-                
                 const mouthSize = Math.abs(Math.sin(mouthOpen)) * 0.25 + 0.1;
-                
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.arc(0, 0, radius, mouthSize, Math.PI * 2 - mouthSize);
                 ctx.closePath();
                 ctx.fill();
-                
                 ctx.shadowBlur = 0;
                 ctx.fillStyle = '#06111f';
                 ctx.beginPath();
@@ -139,12 +170,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 ctx.fill();
                 ctx.restore();
             } else {
-                // Segmento do corpo
                 ctx.save();
                 ctx.fillStyle = hasWave ? '#7ce7ff' : '#34d3ff';
                 ctx.shadowColor = hasWave ? '#fff' : '#34d3ff';
                 ctx.shadowBlur = hasWave ? 20 : 5;
-                
                 ctx.beginPath();
                 const margin = hasWave ? 2 : 3;
                 if (ctx.roundRect) {
@@ -156,22 +185,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 ctx.restore();
             }
         });
-        
         ctx.shadowBlur = 0;
     }
 
     function move() {
         if (!running || paused) return;
 
-        dx = nextDx;
-        dy = nextDy;
+        dx = nextDx; dy = nextDy;
         mouthOpen += mouthSpeed;
-
-        // Atualiza as ondas: cada onda avança um segmento
         activeWaves = activeWaves.map(w => w + 1).filter(w => w < snake.length);
 
         const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-
         if (head.x < 0) head.x = tileCountX - 1;
         if (head.x >= tileCountX) head.x = 0;
         if (head.y < 0) head.y = tileCountY - 1;
@@ -188,11 +212,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (head.x === food.x && head.y === food.y) {
             score += 10;
-            activeWaves.push(0); // Inicia uma nova onda na cabeça
+            activeWaves.push(0);
+            AudioEngine.playSfx(440, 'triangle', 0.1, 880); // Som de comer (agudo subindo)
             
             if (score % 50 === 0) {
                 level++;
                 gameSpeed = Math.max(50, 100 - (level * 5));
+                AudioEngine.playSfx(523.25, 'square', 0.3, 1046.50); // Nível (arpejo)
             }
             updateHud();
             spawnFood();
@@ -204,6 +230,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function gameOver() {
         running = false;
         activeWaves = [];
+        AudioEngine.stopBgm();
+        AudioEngine.playSfx(150, 'sawtooth', 0.5, 50); // Som de morte (grave descendo)
         setMessage('Fim de Jogo', true, true);
     }
 
@@ -227,23 +255,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function start() {
         if (!running) {
-            if (snake.length === 0 || messageEl.textContent === 'Fim de Jogo') {
+            if (snake.length === 0 || messageEl.textContent === 'Fim de Jogo' || messageEl.textContent === 'Pressione iniciar') {
                 initGame();
             }
             running = true;
             paused = false;
             setMessage('', false, false);
+            AudioEngine.startBgm();
         }
     }
 
     function pause() {
         if (!running) return;
         paused = !paused;
+        if (paused) AudioEngine.stopBgm();
+        else AudioEngine.startBgm();
         setMessage(paused ? 'Pausado' : '', paused, paused);
     }
 
     function reset() {
         clearTimeout(gameTimeout);
+        AudioEngine.stopBgm();
         initGame();
         running = false;
         paused = false;
