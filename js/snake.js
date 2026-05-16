@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let running = false;
     let paused = false;
     let gameTimeout = null;
+    let currentMessage = '';
     
     let mouthOpen = 0;
     let mouthSpeed = 0.2;
@@ -113,9 +114,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (levelEl) levelEl.textContent = level;
     }
 
+    function translateMessage(text) {
+        return window.SiteI18n ? window.SiteI18n.translate(text) : text;
+    }
+
     function setMessage(text, visible, interactive) {
         if (!messageEl) return;
-        messageEl.textContent = text;
+        currentMessage = text;
+        messageEl.dataset.messageSource = text;
+        messageEl.textContent = translateMessage(text);
         messageEl.classList.toggle('is-hidden', !visible);
         messageEl.classList.toggle('is-interactive', !!interactive);
     }
@@ -255,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function start() {
         if (!running) {
-            if (snake.length === 0 || messageEl.textContent === 'Fim de Jogo' || messageEl.textContent === 'Pressione iniciar') {
+            if (snake.length === 0 || currentMessage === 'Fim de Jogo' || currentMessage === 'Pressione iniciar') {
                 initGame();
             }
             running = true;

@@ -166,8 +166,13 @@ document.addEventListener('DOMContentLoaded', function () {
         else if (entity.x > cols * tile + tile / 2) entity.x = -tile / 2;
     }
 
+    function translateMessage(text) {
+        return window.SiteI18n ? window.SiteI18n.translate(text) : text;
+    }
+
     function setMessage(text, visible, interactive) {
-        messageEl.textContent = text;
+        messageEl.dataset.messageSource = text;
+        messageEl.textContent = translateMessage(text);
         messageEl.classList.toggle('is-hidden', !visible);
         messageEl.classList.toggle('is-interactive', !!interactive);
     }
