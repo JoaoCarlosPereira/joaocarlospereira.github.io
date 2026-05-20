@@ -224,19 +224,34 @@
   async function getPublishedArticles() {
     const manifestResponse = await fetch(MANIFEST_URL);
     if (!manifestResponse.ok) {
-      throw new Error('Não foi possível carregar o manifesto de artigos.');
+      throw new Error('Não foi possível carregar content/blog/articles.json.');
     }
 
-    const slugs = await manifestResponse.json();
+    let slugs;
+    try {
+      slugs = await manifestResponse.json();
+    } catch (parseErr) {
+      throw new Error('O arquivo articles.json está inválido. Corrija o JSON ou salve um artigo pelo editor.');
+    }
+
     if (!Array.isArray(slugs)) {
-      throw new Error('Manifesto de artigos inválido.');
+      throw new Error('Manifesto de artigos inválido: esperado um array JSON.');
     }
 
-    const articles = await Promise.all(
+    const results = await Promise.allSettled(
       slugs.map(function (slug) {
         return loadArticleBySlug(String(slug));
       })
     );
+
+    const articles = [];
+    results.forEach(function (result, index) {
+      if (result.status === 'fulfilled') {
+        articles.push(result.value);
+      } else {
+        console.warn('Artigo ignorado:', slugs[index], result.reason);
+      }
+    });
 
     return articles
       .filter(function (article) {
@@ -445,7 +460,9 @@
       console.error(error);
       if (errorEl) {
         errorEl.hidden = false;
-        errorEl.textContent = 'Não foi possível carregar os artigos. Tente novamente mais tarde.';
+        errorEl.textContent =
+          error.message ||
+          'Não foi possível carregar os artigos. Verifique articles.json e os arquivos .md em content/blog/.';
       }
       gridEl.hidden = true;
     }

@@ -18,19 +18,38 @@ jobs:
 
       - name: Generate articles.json
         run: |
-          cd content/blog
-          slugs=$(ls *.md 2>/dev/null | sed 's/\.md$//' | sort)
-          echo "[" > articles.json
-          first=true
-          for slug in $slugs; do
-            if [ "$first" = true ]; then
-              echo "  \"$slug\"" >> articles.json
-              first=false
-            else
-              echo "  ,$slug" >> articles.json
-            fi
-          done
-          echo "]" >> articles.json
+          python3 << 'PY'
+          import json
+          import os
+          import re
+
+          blog_dir = "content/blog"
+          slugs = []
+
+          for name in sorted(os.listdir(blog_dir)):
+              if not name.endswith(".md"):
+                  continue
+              path = os.path.join(blog_dir, name)
+              try:
+                  with open(path, encoding="utf-8") as f:
+                      text = f.read()
+              except OSError:
+                  continue
+              match = re.match(r"^---\r?\n([\s\S]*?)\r?\n---", text)
+              if not match:
+                  continue
+              status = "draft"
+              for line in match.group(1).splitlines():
+                  if line.strip().startswith("status:"):
+                      status = line.split(":", 1)[1].strip().strip('"')
+              if status == "published":
+                  slugs.append(name[:-3])
+
+          out_path = os.path.join(blog_dir, "articles.json")
+          with open(out_path, "w", encoding="utf-8") as out:
+              json.dump(slugs, out, indent=2, ensure_ascii=False)
+              out.write("\n")
+          PY
 
       - name: Commit and push if changed
         run: |
