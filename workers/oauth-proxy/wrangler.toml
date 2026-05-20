@@ -1,0 +1,23 @@
+# Cloudflare Worker — OAuth proxy for Sveltia CMS
+# Deploy from this directory: npx wrangler deploy
+#
+# Replace name if your Worker subdomain must be unique on your account.
+
+name = "joaocarlospereira-oauth-proxy"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+# Non-secret vars (or set in Cloudflare dashboard)
+[vars]
+ALLOWED_GITHUB_USER = "JoaoCarlosPereira"
+# ALLOWED_DOMAINS = "joaocarlospereira.github.io,localhost"
+# GITHUB_HOSTNAME = "github.com"
+
+# Set via dashboard or CLI (never commit):
+#   wrangler secret put GITHUB_CLIENT_SECRET
+#   wrangler secret put GITHUB_PAT          # optional, future API proxy
+#   wrangler secret put SESSION_SECRET      # optional
+#
+# GITHUB_CLIENT_ID can be a plain var or secret:
+#   wrangler secret put GITHUB_CLIENT_ID
+# or add to [vars] in dashboard after deploy

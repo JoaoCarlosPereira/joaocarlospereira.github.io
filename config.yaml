@@ -1,0 +1,30 @@
+backend:
+  name: github
+  repo: JoaoCarlosPereira/joaocarlospereira.github.io
+  branch: main
+  base_url: https://joaocarlospereira-oauth-proxy.joaocarlospereira.workers.dev
+  auth_endpoint: auth/github
+
+media_folder: assets/blog
+public_folder: /assets/blog
+
+collections:
+  - name: blog
+    label: Artigos do Blog
+    folder: content/blog
+    create: true
+    slug: "{{slug}}"
+    format: yaml_frontmatter
+    extension: md
+    fields:
+      - { label: Título, name: title, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Data, name: date, widget: datetime, format: YYYY-MM-DD, date_format: YYYY-MM-DD, time_format: false }
+      - { label: Status, name: status, widget: select, options: [draft, published], default: draft }
+      - { label: Idioma, name: language, widget: select, options: [pt, en], default: pt }
+      - { label: Título em inglês, name: en_title, widget: string, required: false }
+      - { label: Caminho corpo EN, name: en_body_path, widget: string, required: false, hint: "Ex.: content/blog/meu-post.en.md" }
+      - { label: SEO título, name: seo_title, widget: string, required: false }
+      - { label: SEO descrição, name: seo_description, widget: text, required: false }
+      - { label: Tags, name: tags, widget: list, required: false }
+      - { label: Conteúdo, name: body, widget: markdown }

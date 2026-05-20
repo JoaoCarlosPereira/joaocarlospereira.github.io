@@ -1,0 +1,16 @@
+# Node.js
+node_modules/
+workers/oauth-proxy/node_modules/
+workers/oauth-proxy/.wrangler/
+workers/oauth-proxy/package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

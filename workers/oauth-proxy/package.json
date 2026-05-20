@@ -1,0 +1,13 @@
+{
+  "name": "joaocarlospereira-oauth-proxy",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Cloudflare Worker OAuth proxy for Sveltia CMS (GitHub)",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

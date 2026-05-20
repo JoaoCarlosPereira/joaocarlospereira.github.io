@@ -1408,3 +1408,23 @@ body.pacman-tech-theme .feature.bg-primary {
         grid-template-rows: repeat(3, 3rem);
     }
 }
+
+/* Blog & Portfolio — mobile */
+@media (max-width: 768px) {
+    #blog-articles-grid > [class*="col-"],
+    #portfolio-grid > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .blog-modal-close,
+    .portfolio-modal-close {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .blog-modal-body,
+    .portfolio-modal-body {
+        max-height: calc(100vh - 7rem);
+    }
+}
