@@ -106,9 +106,6 @@
         if (repo.archived === true) {
           return false;
         }
-        if ((repo.stargazers_count || 0) === 0) {
-          return false;
-        }
         const updatedAt = repo.pushed_at || repo.updated_at;
         if (isRepoTooOld(updatedAt)) {
           return false;
