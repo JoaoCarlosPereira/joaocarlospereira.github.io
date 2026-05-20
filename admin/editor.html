@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Editor de Artigos — Blog</title>
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="../css/styles.css" rel="stylesheet" />
+    <style>
+      body {
+        background: #f8f9fa;
+      }
+      .editor-container {
+        max-width: 960px;
+        margin: 2rem auto;
+      }
+      .form-section {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      .form-section h5 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+      .form-section h5 .bi {
+        color: #1e30f3;
+        margin-right: 0.5rem;
+      }
+      .editor-area {
+        min-height: 300px;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 0.9rem;
+        resize: vertical;
+      }
+      .preview-area {
+        min-height: 300px;
+        max-height: 500px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+      }
+      .preview-area h1, .preview-area h2, .preview-area h3 {
+        margin-top: 1rem;
+      }
+      .preview-area pre {
+        background: #f4f4f4;
+        padding: 1rem;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+      .preview-area code {
+        background: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+      }
+      .preview-area blockquote {
+        border-left: 4px solid #1e30f3;
+        padding-left: 1rem;
+        color: #666;
+        margin: 1rem 0;
+      }
+      .btn-download {
+        background: linear-gradient(135deg, #1e30f3 0%, #e21e80 100%);
+        border: none;
+      }
+      .btn-download:hover {
+        opacity: 0.9;
+        color: #fff;
+      }
+      .article-list {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .article-item {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .article-item:hover {
+        background: #e9ecef;
+        border-color: #1e30f3;
+      }
+      .article-item.active {
+        background: #e7f1ff;
+        border-color: #1e30f3;
+      }
+      .article-item .title {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .article-item .meta {
+        font-size: 0.8rem;
+        color: #666;
+      }
+      .tag-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: #e9ecef;
+        font-size: 0.75rem;
+        margin: 2px;
+      }
+      .tag-remove {
+        cursor: pointer;
+        margin-left: 4px;
+        font-weight: bold;
+      }
+      .tag-remove:hover {
+        color: #dc3545;
+      }
+      .yaml-preview {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 0.85rem;
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body class="d-flex flex-column h-100 bg-light">
+    <main class="flex-shrink-0 py-4">
+      <div class="editor-container">
+        <div class="text-center mb-4">
+          <h1 class="display-6 fw-bolder"><span class="text-gradient d-inline">Editor de Artigos</span></h1>
+          <p class="lead text-muted">Crie artigos em Markdown e baixe como arquivos .md prontos para o repositório</p>
+        </div>
+
+        <!-- Article List -->
+        <div class="form-section">
+          <h5><i class="bi bi-file-earmark-text"></i>Artigos Existentes</h5>
+          <div id="article-list" class="article-list">
+            <p class="text-muted text-center py-3">Nenhum artigo carregado. Crie um novo abaixo!</p>
+          </div>
+        </div>
+
+        <!-- New/Edit Article Form -->
+        <div class="form-section">
+          <h5><i class="bi bi-pencil-square"></i><span id="form-title">Novo Artigo</span></h5>
+
+          <form id="article-form">
+            <!-- Basic Info -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Título <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="field-title" placeholder="Ex.: Como usar GitHub Pages" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Slug <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="field-slug" placeholder="ex-como-usar-github-pages" required />
+                <div class="form-text">Usado no nome do arquivo: <code>content/blog/{slug}.md</code></div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Data</label>
+                <input type="date" class="form-control" id="field-date" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Status</label>
+                <select class="form-select" id="field-status">
+                  <option value="draft">Rascunho</option>
+                  <option value="published" selected>Publicado</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Idioma</label>
+                <select class="form-select" id="field-language">
+                  <option value="pt" selected>Português</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- SEO -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">SEO Título</label>
+                <input type="text" class="form-control" id="field-seo-title" placeholder="Título para buscadores" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">SEO Descrição</label>
+                <input type="text" class="form-control" id="field-seo-desc" placeholder="Descrição curta para buscadores" />
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Tags</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="field-tag-input" placeholder="Digite uma tag e pressione Enter" />
+                <button type="button" class="btn btn-outline-secondary" id="btn-add-tag">
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+              <div id="tag-list" class="mt-2"></div>
+              <div class="form-text">Pressione Enter para adicionar cada tag</div>
+            </div>
+
+            <!-- English Title (optional) -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Título em Inglês</label>
+                <input type="text" class="form-control" id="field-en-title" placeholder="Opcional" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Caminho corpo em Inglês</label>
+                <input type="text" class="form-control" id="field-en-body" placeholder="Ex.: content/blog/meu-post.en.md" />
+                <div class="form-text">Caminho relativo no repositório para o corpo do artigo em inglês</div>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Conteúdo (Markdown) <span class="text-danger">*</span></label>
+              <textarea class="form-control editor-area" id="field-body" placeholder="# Escreva seu artigo aqui...&#10;&#10;Use **Markdown** para formatar:&#10;- **Negrito** e *itálico*&#10;- Listas&#10;- Blocos de código&#10;- Links e imagens" required></textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <button type="submit" class="btn btn-primary" id="btn-save">
+                <i class="bi bi-save"></i> Salvar Artigo
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btn-clear">
+                <i class="bi bi-eraser"></i> Limpar
+              </button>
+              <button type="button" class="btn btn-outline-danger" id="btn-delete" hidden>
+                <i class="bi bi-trash"></i> Excluir
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Preview -->
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="form-section">
+              <h5><i class="bi bi-file-earmark-code"></i>YAML Frontmatter</h5>
+              <div id="yaml-preview" class="yaml-preview"></div>
+              <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="btn-copy-yaml">
+                <i class="bi bi-clipboard"></i> Copiar YAML
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-section">
+              <h5><i class="bi bi-eye"></i>Preview Markdown</h5>
+              <div id="preview-content" class="preview-area"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Download -->
+        <div class="text-center mt-4 mb-5">
+          <button type="button" class="btn btn-primary btn-lg btn-download" id="btn-download">
+            <i class="bi bi-download"></i> Baixar Arquivo .md
+          </button>
+          <div class="form-text mt-2">Baixe o arquivo .md e copie para <code>content/blog/</code> no seu repositório, depois faça commit via Git</div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-white py-4 mt-auto">
+      <div class="container px-5">
+        <div class="row align-items-center justify-content-between flex-column flex-sm-row">
+          <div class="col-auto"><div class="small m-0">Copyright &copy; João Carlos Pereira 2026</div></div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+    <script>
+    (function () {
+      'use strict';
+
+      const ARTICLES_KEY = 'blog_articles_data';
+      let currentSlug = null;
+      let currentTags = [];
+
+      // Load articles from localStorage
+      function loadArticles() {
+        try {
+          const raw = localStorage.getItem(ARTICLES_KEY);
+          if (!raw) return [];
+          return JSON.parse(raw);
+        } catch (e) {
+          return [];
+        }
+      }
+
+      // Save articles to localStorage
+      function saveArticles(articles) {
+        localStorage.setItem(ARTICLES_KEY, JSON.stringify(articles));
+      }
+
+      // Render article list
+      function renderArticleList() {
+        const articles = loadArticles();
+        const container = document.getElementById('article-list');
+
+        if (articles.length === 0) {
+          container.innerHTML = '<p class="text-muted text-center py-3">Nenhum artigo salvo. Crie um novo abaixo!</p>';
+          return;
+        }
+
+        let html = '';
+        articles.forEach(function (a) {
+          const activeClass = a.slug === currentSlug ? ' active' : '';
+          html += '<div class="article-item' + activeClass + '" data-slug="' + a.slug + '">' +
+            '<div class="title">' + escapeHtml(a.title) + '</div>' +
+            '<div class="meta">' +
+              'Status: ' + (a.status === 'published' ? 'Publicado' : 'Rascunho') +
+              ' | Data: ' + escapeHtml(a.date) +
+              ' | Idioma: ' + escapeHtml(a.language) +
+            '</div>' +
+          '</div>';
+        });
+        container.innerHTML = html;
+
+        container.querySelectorAll('.article-item').forEach(function (item) {
+          item.addEventListener('click', function () {
+            loadArticle(item.getAttribute('data-slug'));
+          });
+        });
+      }
+
+      // Load article into form
+      function loadArticle(slug) {
+        const articles = loadArticles();
+        const article = articles.find(function (a) { return a.slug === slug; });
+        if (!article) return;
+
+        currentSlug = slug;
+        document.getElementById('field-title').value = article.title || '';
+        document.getElementById('field-slug').value = article.slug || '';
+        document.getElementById('field-date').value = article.date || '';
+        document.getElementById('field-status').value = article.status || 'published';
+        document.getElementById('field-language').value = article.language || 'pt';
+        document.getElementById('field-seo-title').value = article.seo_title || '';
+        document.getElementById('field-seo-desc').value = article.seo_description || '';
+        document.getElementById('field-en-title').value = article.en_title || '';
+        document.getElementById('field-en-body').value = article.en_body_path || '';
+        document.getElementById('field-body').value = article.body || '';
+        document.getElementById('form-title').textContent = 'Editar Artigo';
+        document.getElementById('btn-delete').hidden = false;
+        document.getElementById('btn-save').innerHTML = '<i class="bi bi-pencil"></i> Atualizar Artigo';
+
+        currentTags = Array.isArray(article.tags) ? article.tags : [];
+        renderTags();
+        updatePreview();
+        renderArticleList();
+      }
+
+      // Clear form
+      function clearForm() {
+        currentSlug = null;
+        currentTags = [];
+        document.getElementById('article-form').reset();
+        document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('form-title').textContent = 'Novo Artigo';
+        document.getElementById('btn-delete').hidden = true;
+        document.getElementById('btn-save').innerHTML = '<i class="bi bi-save"></i> Salvar Artigo';
+        renderTags();
+        updatePreview();
+        renderArticleList();
+      }
+
+      // Delete article
+      function deleteArticle(slug) {
+        if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
+        let articles = loadArticles();
+        articles = articles.filter(function (a) { return a.slug !== slug; });
+        saveArticles(articles);
+        clearForm();
+        renderArticleList();
+      }
+
+      // Tags management
+      function renderTags() {
+        const container = document.getElementById('tag-list');
+        if (currentTags.length === 0) {
+          container.innerHTML = '';
+          return;
+        }
+        let html = '';
+        currentTags.forEach(function (tag, i) {
+          html += '<span class="tag-badge">' + escapeHtml(tag) +
+            ' <span class="tag-remove" data-index="' + i + '">&times;</span></span> ';
+        });
+        container.innerHTML = html;
+
+        container.querySelectorAll('.tag-remove').forEach(function (el) {
+          el.addEventListener('click', function () {
+            currentTags.splice(parseInt(el.getAttribute('data-index')), 1);
+            renderTags();
+          });
+        });
+      }
+
+      document.getElementById('field-tag-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const val = this.value.trim();
+          if (val && !currentTags.includes(val)) {
+            currentTags.push(val);
+            renderTags();
+            this.value = '';
+          }
+        }
+      });
+
+      document.getElementById('btn-add-tag').addEventListener('click', function () {
+        const input = document.getElementById('field-tag-input');
+        const val = input.value.trim();
+        if (val && !currentTags.includes(val)) {
+          currentTags.push(val);
+          renderTags();
+          input.value = '';
+        }
+      });
+
+      // Generate YAML frontmatter
+      function generateYamlFrontmatter() {
+        const title = document.getElementById('field-title').value.trim();
+        const slug = document.getElementById('field-slug').value.trim();
+        const date = document.getElementById('field-date').value;
+        const status = document.getElementById('field-status').value;
+        const language = document.getElementById('field-language').value;
+        const seo_title = document.getElementById('field-seo-title').value.trim();
+        const seo_description = document.getElementById('field-seo-desc').value.trim();
+        const en_title = document.getElementById('field-en-title').value.trim();
+        const en_body_path = document.getElementById('field-en-body').value.trim();
+
+        let yaml = '---\n';
+        yaml += 'title: "' + escapeYamlString(title) + '"\n';
+        yaml += 'slug: ' + escapeYamlValue(slug) + '\n';
+        yaml += 'date: ' + date + '\n';
+        yaml += 'status: ' + status + '\n';
+        yaml += 'language: ' + language + '\n';
+
+        if (en_title) yaml += 'en_title: "' + escapeYamlString(en_title) + '"\n';
+        else yaml += 'en_title: ""\n';
+
+        if (en_body_path) yaml += 'en_body_path: ' + escapeYamlValue(en_body_path) + '\n';
+        else yaml += 'en_body_path: ""\n';
+
+        if (seo_title) yaml += 'seo_title: "' + escapeYamlString(seo_title) + '"\n';
+        else yaml += 'seo_title: ""\n';
+
+        if (seo_description) yaml += 'seo_description: "' + escapeYamlString(seo_description) + '"\n';
+        else yaml += 'seo_description: ""\n';
+
+        if (currentTags.length > 0) {
+          yaml += 'tags: [' + currentTags.map(function (t) { return '"' + escapeYamlString(t) + '"'; }).join(', ') + ']\n';
+        } else {
+          yaml += 'tags: []\n';
+        }
+
+        yaml += '---\n';
+        return yaml;
+      }
+
+      function escapeYamlString(str) {
+        return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      }
+
+      function escapeYamlValue(str) {
+        if (/^[a-zA-Z0-9_/.-]+$/.test(str)) return str;
+        return '"' + escapeYamlString(str) + '"';
+      }
+
+      // Update preview
+      function updatePreview() {
+        const yaml = generateYamlFrontmatter();
+        const body = document.getElementById('field-body').value;
+
+        document.getElementById('yaml-preview').textContent = yaml;
+
+        const html = marked.parse(body || '*Escreva o conteúdo do artigo acima para ver o preview...*');
+        document.getElementById('preview-content').innerHTML = html;
+      }
+
+      // Generate full article file
+      function generateArticleFile() {
+        const title = document.getElementById('field-title').value.trim();
+        const slug = document.getElementById('field-slug').value.trim();
+        const body = document.getElementById('field-body').value;
+
+        if (!title || !slug || !body) {
+          alert('Preencha o título, slug e conteúdo do artigo.');
+          return null;
+        }
+
+        return generateYamlFrontmatter() + '\n' + body;
+      }
+
+      // Download article file
+      function downloadArticle() {
+        const content = generateArticleFile();
+        if (!content) return;
+
+        const slug = document.getElementById('field-slug').value.trim() || 'artigo';
+        const filename = slug + '.md';
+        const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'content/blog/' + filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // Copy YAML to clipboard
+      function copyYaml() {
+        const yaml = generateYamlFrontmatter();
+        navigator.clipboard.writeText(yaml).then(function () {
+          const btn = document.getElementById('btn-copy-yaml');
+          btn.innerHTML = '<i class="bi bi-check"></i> Copiado!';
+          setTimeout(function () {
+            btn.innerHTML = '<i class="bi bi-clipboard"></i> Copiar YAML';
+          }, 2000);
+        });
+      }
+
+      // Save article to localStorage
+      function saveArticle() {
+        const title = document.getElementById('field-title').value.trim();
+        const slug = document.getElementById('field-slug').value.trim();
+        const body = document.getElementById('field-body').value;
+
+        if (!title || !slug || !body) {
+          alert('Preencha o título, slug e conteúdo do artigo.');
+          return;
+        }
+
+        const article = {
+          title: title,
+          slug: slug,
+          date: document.getElementById('field-date').value,
+          status: document.getElementById('field-status').value,
+          language: document.getElementById('field-language').value,
+          en_title: document.getElementById('field-en-title').value.trim(),
+          en_body_path: document.getElementById('field-en-body').value.trim(),
+          seo_title: document.getElementById('field-seo-title').value.trim(),
+          seo_description: document.getElementById('field-seo-desc').value.trim(),
+          tags: currentTags.slice(),
+          body: body
+        };
+
+        let articles = loadArticles();
+        const existingIndex = articles.findIndex(function (a) { return a.slug === slug; });
+
+        if (existingIndex >= 0) {
+          articles[existingIndex] = article;
+        } else {
+          articles.push(article);
+        }
+
+        saveArticles(articles);
+        currentSlug = slug;
+        alert('Artigo salvo localmente com sucesso!\n\nClique em "Baixar Arquivo .md" para obter o arquivo e copiá-lo para o repositório.');
+      }
+
+      // Escape HTML
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+      }
+
+      // Event listeners
+      document.getElementById('article-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        saveArticle();
+      });
+
+      document.getElementById('btn-clear').addEventListener('click', clearForm);
+      document.getElementById('btn-delete').addEventListener('click', function () {
+        if (currentSlug) deleteArticle(currentSlug);
+      });
+      document.getElementById('btn-download').addEventListener('click', downloadArticle);
+      document.getElementById('btn-copy-yaml').addEventListener('click', copyYaml);
+
+      // Auto-update preview on input
+      ['field-title', 'field-slug', 'field-date', 'field-status', 'field-language',
+       'field-seo-title', 'field-seo-desc', 'field-en-title', 'field-en-body', 'field-body'].forEach(function (id) {
+        document.getElementById(id).addEventListener('input', updatePreview);
+      });
+
+      // Initialize
+      document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
+      renderArticleList();
+      updatePreview();
+
+    })();
+    </script>
+  </body>
+</html>

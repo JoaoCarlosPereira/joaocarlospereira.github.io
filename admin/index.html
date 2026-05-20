@@ -6,67 +6,116 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Admin — Blog</title>
     <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
-    <link href="/config.yaml" type="text/yaml" rel="cms-config-url" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="../css/styles.css" rel="stylesheet" />
     <style>
-      html, body {
-        height: 100%;
-        margin: 0;
+      body {
+        background: #f8f9fa;
+      }
+      .admin-container {
+        max-width: 700px;
+        margin: 4rem auto;
+      }
+      .admin-card {
         background: #fff;
-        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       }
-      .sveltia-cms, #nc-root {
-        height: 100%;
-        width: 100%;
+      .admin-card h1 {
+        font-size: 2rem;
+        font-weight: 800;
+      }
+      .btn-admin {
+        background: linear-gradient(135deg, #1e30f3 0%, #e21e80 100%);
         border: none;
-        display: block;
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
       }
-      #nc-root-fallback {
-        display: none;
-        padding: 4rem 2rem;
-        text-align: center;
+      .btn-admin:hover {
+        opacity: 0.9;
+        color: #fff;
       }
-      #nc-root-fallback.show {
-        display: block;
+      .step-list {
+        list-style: none;
+        padding: 0;
+        counter-reset: step-counter;
       }
-      #nc-root-fallback h1 {
-        margin-bottom: 1rem;
-        color: #222;
+      .step-list li {
+        counter-increment: step-counter;
+        padding: 0.75rem 0 0.75rem 3rem;
+        position: relative;
+        border-bottom: 1px solid #f0f0f0;
       }
-      #nc-root-fallback p {
-        color: #555;
-        max-width: 40ch;
-        margin: 0 auto 1.5rem;
+      .step-list li:last-child {
+        border-bottom: none;
       }
-      #nc-root-fallback code {
-        background: #f4f4f4;
-        padding: 2px 6px;
-        border-radius: 4px;
+      .step-list li::before {
+        content: counter(step-counter);
+        position: absolute;
+        left: 0;
+        top: 0.75rem;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        background: #1e30f3;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
       }
     </style>
   </head>
-  <body>
-    <div id="nc-root"></div>
-    <script src="https://unpkg.com/@sveltia/cms@0.103.0/dist/sveltia-cms.js"></script>
-    <script>
-      // Configuração manual para autenticação com PAT (Personal Access Token)
-      window.addEventListener('load', function () {
-        // Sveltia CMS já carrega o config.yaml automaticamente via
-        // <link rel="cms-config-url">, mas sem base_url ele vai oferecer
-        // a opção "Sign in with token" para usar PAT direto.
-      });
+  <body class="d-flex flex-column h-100 bg-light">
+    <main class="flex-shrink-0 py-5">
+      <div class="admin-container">
+        <div class="text-center mb-4">
+          <h1 class="display-6 fw-bolder"><span class="text-gradient d-inline">Admin — Blog</span></h1>
+          <p class="lead text-muted">Gerencie os artigos do seu blog de forma simples e segura</p>
+        </div>
 
-      // Fallback: se o CMS não carregar em 10 segundos, mostra mensagem
-      window.setTimeout(function () {
-        var el = document.getElementById('nc-root-fallback');
-        var app = document.getElementById('nc-root') || document.querySelector('.sveltia-cms');
-        if (el && !app) {
-          el.classList.add('show');
-        }
-      }, 10000);
-    </script>
-    <div id="nc-root-fallback">
-      <h1>Não foi possível carregar o editor</h1>
-      <p>Verifique a conexão, o arquivo <code>config.yaml</code> e o Token de acesso. Você também pode publicar editando arquivos em <code>content/blog/</code> diretamente pelo GitHub.</p>
-    </div>
+        <div class="admin-card">
+          <div class="text-center mb-4">
+            <a href="editor.html" class="btn btn-primary btn-admin">
+              <i class="bi bi-pencil-square"></i> Abrir Editor de Artigos
+            </a>
+          </div>
+
+          <hr />
+
+          <h5 class="mt-4 fw-bold"><i class="bi bi-info-circle text-primary"></i> Como funciona</h5>
+          <ol class="step-list">
+            <li>Abra o <strong>Editor de Artigos</strong> acima</li>
+            <li>Preencha o título, slug, conteúdo (Markdown) e outras informações</li>
+            <li>Clique em <strong>"Baixar Arquivo .md"</strong> — o arquivo será salvo no seu computador</li>
+            <li>Copie o arquivo para a pasta <code>content/blog/</code> do seu repositório</li>
+            <li>Faça commit via Git: <code>git add content/blog/ && git commit -m "Novo artigo" && git push</code></li>
+          </ol>
+
+          <hr />
+
+          <h5 class="mt-4 fw-bold"><i class="bi bi-shield-check text-primary"></i> Por que esse método?</h5>
+          <p class="text-muted">
+            Este editor funciona 100% no seu navegador, sem precisar de servidor, banco de dados ou tokens de acesso.
+            Os artigos ficam salvos no seu navegador (localStorage) e você baixa os arquivos <code>.md</code> para
+            colocar no repositório Git.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-white py-4 mt-auto">
+      <div class="container px-5">
+        <div class="row align-items-center justify-content-between flex-column flex-sm-row">
+          <div class="col-auto"><div class="small m-0">Copyright &copy; João Carlos Pereira 2026</div></div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
