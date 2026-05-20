@@ -70,11 +70,11 @@
         color: #666;
         margin: 1rem 0;
       }
-      .btn-download {
+      .btn-save-local {
         background: linear-gradient(135deg, #1e30f3 0%, #e21e80 100%);
         border: none;
       }
-      .btn-download:hover {
+      .btn-save-local:hover {
         opacity: 0.9;
         color: #fff;
       }
@@ -136,6 +136,29 @@
         max-height: 400px;
         overflow-y: auto;
       }
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .status-saved {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status-unsaved {
+        background: #fff3cd;
+        color: #856404;
+      }
+      .directory-badge {
+        background: #e7f1ff;
+        color: #004085;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+      }
     </style>
   </head>
   <body class="d-flex flex-column h-100 bg-light">
@@ -143,19 +166,36 @@
       <div class="editor-container">
         <div class="text-center mb-4">
           <h1 class="display-6 fw-bolder"><span class="text-gradient d-inline">Editor de Artigos</span></h1>
-          <p class="lead text-muted">Crie artigos em Markdown e baixe como arquivos .md prontos para o repositório</p>
+          <p class="lead text-muted">Edite artigos diretamente da pasta <code>content/blog/</code> do seu projeto</p>
+        </div>
+
+        <!-- Directory Status -->
+        <div class="text-center mb-3">
+          <div id="dir-status" class="directory-badge">
+            <i class="bi bi-folder2-open"></i> Aguardando seleção da pasta <code>content/blog/</code>...
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="text-center mb-3">
+          <button type="button" class="btn btn-primary" id="btn-open-dir">
+            <i class="bi bi-folder2-open"></i> Abrir Pasta content/blog/
+          </button>
+          <button type="button" class="btn btn-outline-secondary" id="btn-new" hidden>
+            <i class="bi bi-plus-circle"></i> Novo Artigo
+          </button>
         </div>
 
         <!-- Article List -->
-        <div class="form-section">
-          <h5><i class="bi bi-file-earmark-text"></i>Artigos Existentes</h5>
+        <div class="form-section" id="list-section" hidden>
+          <h5><i class="bi bi-file-earmark-text"></i>Artigos na Pasta</h5>
           <div id="article-list" class="article-list">
-            <p class="text-muted text-center py-3">Nenhum artigo carregado. Crie um novo abaixo!</p>
+            <p class="text-muted text-center py-3">Carregando artigos...</p>
           </div>
         </div>
 
         <!-- New/Edit Article Form -->
-        <div class="form-section">
+        <div class="form-section" id="form-section" hidden>
           <h5><i class="bi bi-pencil-square"></i><span id="form-title">Novo Artigo</span></h5>
 
           <form id="article-form">
@@ -239,28 +279,26 @@
 
             <!-- Actions -->
             <div class="d-flex flex-wrap gap-2 mb-3">
-              <button type="submit" class="btn btn-primary" id="btn-save">
-                <i class="bi bi-save"></i> Salvar Artigo
+              <button type="submit" class="btn btn-primary btn-save-local" id="btn-save">
+                <i class="bi bi-save"></i> Salvar no Arquivo
               </button>
               <button type="button" class="btn btn-outline-secondary" id="btn-clear">
                 <i class="bi bi-eraser"></i> Limpar
               </button>
               <button type="button" class="btn btn-outline-danger" id="btn-delete" hidden>
-                <i class="bi bi-trash"></i> Excluir
+                <i class="bi bi-trash"></i> Excluir Arquivo
               </button>
+              <span id="save-status"></span>
             </div>
           </form>
         </div>
 
         <!-- Preview -->
-        <div class="row g-3">
+        <div class="row g-3" id="preview-section" hidden>
           <div class="col-md-6">
             <div class="form-section">
               <h5><i class="bi bi-file-earmark-code"></i>YAML Frontmatter</h5>
               <div id="yaml-preview" class="yaml-preview"></div>
-              <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="btn-copy-yaml">
-                <i class="bi bi-clipboard"></i> Copiar YAML
-              </button>
             </div>
           </div>
           <div class="col-md-6">
@@ -271,13 +309,9 @@
           </div>
         </div>
 
-        <!-- Download -->
-        <div class="text-center mt-4 mb-5">
-          <button type="button" class="btn btn-primary btn-lg btn-download" id="btn-download">
-            <i class="bi bi-download"></i> Baixar Arquivo .md
-          </button>
-          <div class="form-text mt-2">Baixe o arquivo .md e copie para <code>content/blog/</code> no seu repositório, depois faça commit via Git</div>
-        </div>
+        <p class="text-center text-muted mt-4 mb-5" id="instructions">
+          <i class="bi bi-info-circle"></i> Clique em <strong>"Abrir Pasta content/blog/"</strong> para começar
+        </p>
       </div>
     </main>
 
@@ -295,106 +329,211 @@
     (function () {
       'use strict';
 
-      const ARTICLES_KEY = 'blog_articles_data';
+      let dirHandle = null;
       let currentSlug = null;
+      let currentFileHandle = null;
       let currentTags = [];
 
-      // Load articles from localStorage
-      function loadArticles() {
-        try {
-          const raw = localStorage.getItem(ARTICLES_KEY);
-          if (!raw) return [];
-          return JSON.parse(raw);
-        } catch (e) {
-          return [];
-        }
+      // Check if File System Access API is supported
+      function isFileSystemAccessSupported() {
+        return 'showDirectoryPicker' in window;
       }
 
-      // Save articles to localStorage
-      function saveArticles(articles) {
-        localStorage.setItem(ARTICLES_KEY, JSON.stringify(articles));
-      }
-
-      // Render article list
-      function renderArticleList() {
-        const articles = loadArticles();
-        const container = document.getElementById('article-list');
-
-        if (articles.length === 0) {
-          container.innerHTML = '<p class="text-muted text-center py-3">Nenhum artigo salvo. Crie um novo abaixo!</p>';
+      // Open content/blog directory
+      async function openDirectory() {
+        if (!isFileSystemAccessSupported()) {
+          alert('Seu navegador não suporta acesso direto ao sistema de arquivos.\n\nUse o Chrome ou Edge para esta funcionalidade.');
           return;
         }
 
-        let html = '';
-        articles.forEach(function (a) {
-          const activeClass = a.slug === currentSlug ? ' active' : '';
-          html += '<div class="article-item' + activeClass + '" data-slug="' + a.slug + '">' +
-            '<div class="title">' + escapeHtml(a.title) + '</div>' +
-            '<div class="meta">' +
-              'Status: ' + (a.status === 'published' ? 'Publicado' : 'Rascunho') +
-              ' | Data: ' + escapeHtml(a.date) +
-              ' | Idioma: ' + escapeHtml(a.language) +
-            '</div>' +
-          '</div>';
-        });
-        container.innerHTML = html;
-
-        container.querySelectorAll('.article-item').forEach(function (item) {
-          item.addEventListener('click', function () {
-            loadArticle(item.getAttribute('data-slug'));
+        try {
+          dirHandle = await window.showDirectoryPicker({
+            mode: 'readwrite'
           });
-        });
+
+          // Navigate to content/blog
+          try {
+            dirHandle = await dirHandle.getDirectoryHandle('content').then(cDir => {
+              return cDir.getDirectoryHandle('blog');
+            });
+          } catch (e) {
+            // If content/blog doesn't exist, try to create it
+            try {
+              dirHandle = await dirHandle.getDirectoryHandle('content', { create: true });
+              dirHandle = await dirHandle.getDirectoryHandle('blog', { create: true });
+            } catch (e2) {
+              throw new Error('Não foi possível criar ou acessar a pasta content/blog/');
+            }
+          }
+
+          document.getElementById('dir-status').innerHTML =
+            '<i class="bi bi-check-circle-fill text-success"></i> Pasta <code>content/blog/</code> aberta com sucesso!';
+          document.getElementById('dir-status').style.background = '#d4edda';
+          document.getElementById('btn-new').hidden = false;
+          document.getElementById('instructions').style.display = 'none';
+
+          await loadArticlesFromDisk();
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao abrir pasta: ' + err.message);
+        }
       }
 
-      // Load article into form
-      function loadArticle(slug) {
-        const articles = loadArticles();
-        const article = articles.find(function (a) { return a.slug === slug; });
-        if (!article) return;
+      // Load articles from disk
+      async function loadArticlesFromDisk() {
+        const listContainer = document.getElementById('article-list');
+        const listSection = document.getElementById('list-section');
+        const formSection = document.getElementById('form-section');
+        const previewSection = document.getElementById('preview-section');
 
-        currentSlug = slug;
-        document.getElementById('field-title').value = article.title || '';
-        document.getElementById('field-slug').value = article.slug || '';
-        document.getElementById('field-date').value = article.date || '';
-        document.getElementById('field-status').value = article.status || 'published';
-        document.getElementById('field-language').value = article.language || 'pt';
-        document.getElementById('field-seo-title').value = article.seo_title || '';
-        document.getElementById('field-seo-desc').value = article.seo_description || '';
-        document.getElementById('field-en-title').value = article.en_title || '';
-        document.getElementById('field-en-body').value = article.en_body_path || '';
-        document.getElementById('field-body').value = article.body || '';
-        document.getElementById('form-title').textContent = 'Editar Artigo';
-        document.getElementById('btn-delete').hidden = false;
-        document.getElementById('btn-save').innerHTML = '<i class="bi bi-pencil"></i> Atualizar Artigo';
+        try {
+          const files = [];
+          for await (const entry of dirHandle.values()) {
+            if (entry.kind === 'file' && entry.name.endsWith('.md')) {
+              files.push(entry.name);
+            }
+          }
 
-        currentTags = Array.isArray(article.tags) ? article.tags : [];
-        renderTags();
-        updatePreview();
-        renderArticleList();
+          files.sort();
+
+          if (files.length === 0) {
+            listContainer.innerHTML = '<p class="text-muted text-center py-3">Nenhum artigo .md encontrado na pasta.</p>';
+          } else {
+            let html = '';
+            files.forEach(function (filename) {
+              const slug = filename.replace(/\.md$/, '');
+              html += '<div class="article-item" data-slug="' + slug + '" data-file="' + filename + '">' +
+                '<div class="title">' + escapeHtml(slug) + '</div>' +
+                '<div class="meta">Arquivo: ' + escapeHtml(filename) + '</div>' +
+              '</div>';
+            });
+            listContainer.innerHTML = html;
+
+            listContainer.querySelectorAll('.article-item').forEach(function (item) {
+              item.addEventListener('click', function () {
+                loadArticleFromFile(
+                  this.getAttribute('data-slug'),
+                  this.getAttribute('data-file')
+                );
+              });
+            });
+          }
+
+          listSection.hidden = false;
+          formSection.hidden = true;
+          previewSection.hidden = true;
+
+        } catch (err) {
+          console.error(err);
+          listContainer.innerHTML = '<p class="text-danger text-center py-3">Erro ao ler arquivos: ' + escapeHtml(err.message) + '</p>';
+          listSection.hidden = false;
+        }
+      }
+
+      // Load article from file
+      async function loadArticleFromFile(slug, filename) {
+        try {
+          const fileHandle = await dirHandle.getFileHandle(filename);
+          const file = await fileHandle.getFile();
+          const content = await file.text();
+
+          currentSlug = slug;
+          currentFileHandle = fileHandle;
+
+          // Parse frontmatter
+          const parsed = parseArticle(content);
+
+          document.getElementById('field-title').value = parsed.metadata.title || '';
+          document.getElementById('field-slug').value = parsed.metadata.slug || slug;
+          document.getElementById('field-date').value = parsed.metadata.date || '';
+          document.getElementById('field-status').value = parsed.metadata.status || 'published';
+          document.getElementById('field-language').value = parsed.metadata.language || 'pt';
+          document.getElementById('field-seo-title').value = parsed.metadata.seo_title || '';
+          document.getElementById('field-seo-desc').value = parsed.metadata.seo_description || '';
+          document.getElementById('field-en-title').value = parsed.metadata.en_title || '';
+          document.getElementById('field-en-body').value = parsed.metadata.en_body_path || '';
+          document.getElementById('field-body').value = parsed.body || '';
+          document.getElementById('form-title').textContent = 'Editar ' + escapeHtml(slug);
+          document.getElementById('btn-delete').hidden = false;
+          document.getElementById('btn-save').innerHTML = '<i class="bi bi-save"></i> Salvar no Arquivo';
+
+          currentTags = Array.isArray(parsed.metadata.tags) ? parsed.metadata.tags : [];
+          renderTags();
+          updatePreview();
+
+          document.getElementById('list-section').hidden = true;
+          document.getElementById('form-section').hidden = false;
+          document.getElementById('preview-section').hidden = false;
+
+          // Highlight active article
+          document.querySelectorAll('.article-item').forEach(function (item) {
+            item.classList.toggle('active', item.getAttribute('data-slug') === slug);
+          });
+
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao ler arquivo: ' + err.message);
+        }
+      }
+
+      // Parse YAML frontmatter and body from article content
+      function parseArticle(content) {
+        const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+        if (!match) {
+          return { metadata: {}, body: content };
+        }
+
+        const metadata = {};
+        const lines = match[1].split(/\r?\n/);
+        lines.forEach(function (line) {
+          const m = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/);
+          if (m) {
+            let val = m[2].trim();
+            if (val.startsWith('"') && val.endsWith('"')) {
+              val = val.slice(1, -1);
+            } else if (val === '[]') {
+              val = [];
+            } else if (/^-?\d+(\.\d+)?$/.test(val)) {
+              val = Number(val);
+            }
+            metadata[m[1]] = val;
+          }
+        });
+
+        return {
+          metadata: metadata,
+          body: match[2].trim()
+        };
       }
 
       // Clear form
       function clearForm() {
         currentSlug = null;
+        currentFileHandle = null;
         currentTags = [];
         document.getElementById('article-form').reset();
         document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
         document.getElementById('form-title').textContent = 'Novo Artigo';
         document.getElementById('btn-delete').hidden = true;
-        document.getElementById('btn-save').innerHTML = '<i class="bi bi-save"></i> Salvar Artigo';
+        document.getElementById('btn-save').innerHTML = '<i class="bi bi-save"></i> Salvar no Arquivo';
         renderTags();
         updatePreview();
-        renderArticleList();
+
+        document.getElementById('list-section').hidden = false;
+        document.getElementById('form-section').hidden = true;
+        document.getElementById('preview-section').hidden = true;
       }
 
-      // Delete article
-      function deleteArticle(slug) {
-        if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
-        let articles = loadArticles();
-        articles = articles.filter(function (a) { return a.slug !== slug; });
-        saveArticles(articles);
-        clearForm();
-        renderArticleList();
+      // Delete article file
+      async function deleteArticle() {
+        if (!currentFileHandle || !confirm('Tem certeza que deseja excluir o arquivo "' + currentFileHandle.name + '"?')) return;
+        try {
+          await dirHandle.removeEntry(currentFileHandle.name);
+          clearForm();
+          await loadArticlesFromDisk();
+        } catch (err) {
+          alert('Erro ao excluir arquivo: ' + err.message);
+        }
       }
 
       // Tags management
@@ -502,52 +641,8 @@
         document.getElementById('preview-content').innerHTML = html;
       }
 
-      // Generate full article file
-      function generateArticleFile() {
-        const title = document.getElementById('field-title').value.trim();
-        const slug = document.getElementById('field-slug').value.trim();
-        const body = document.getElementById('field-body').value;
-
-        if (!title || !slug || !body) {
-          alert('Preencha o título, slug e conteúdo do artigo.');
-          return null;
-        }
-
-        return generateYamlFrontmatter() + '\n' + body;
-      }
-
-      // Download article file
-      function downloadArticle() {
-        const content = generateArticleFile();
-        if (!content) return;
-
-        const slug = document.getElementById('field-slug').value.trim() || 'artigo';
-        const filename = slug + '.md';
-        const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'content/blog/' + filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-
-      // Copy YAML to clipboard
-      function copyYaml() {
-        const yaml = generateYamlFrontmatter();
-        navigator.clipboard.writeText(yaml).then(function () {
-          const btn = document.getElementById('btn-copy-yaml');
-          btn.innerHTML = '<i class="bi bi-check"></i> Copiado!';
-          setTimeout(function () {
-            btn.innerHTML = '<i class="bi bi-clipboard"></i> Copiar YAML';
-          }, 2000);
-        });
-      }
-
-      // Save article to localStorage
-      function saveArticle() {
+      // Save article to disk
+      async function saveArticle() {
         const title = document.getElementById('field-title').value.trim();
         const slug = document.getElementById('field-slug').value.trim();
         const body = document.getElementById('field-body').value;
@@ -557,32 +652,41 @@
           return;
         }
 
-        const article = {
-          title: title,
-          slug: slug,
-          date: document.getElementById('field-date').value,
-          status: document.getElementById('field-status').value,
-          language: document.getElementById('field-language').value,
-          en_title: document.getElementById('field-en-title').value.trim(),
-          en_body_path: document.getElementById('field-en-body').value.trim(),
-          seo_title: document.getElementById('field-seo-title').value.trim(),
-          seo_description: document.getElementById('field-seo-desc').value.trim(),
-          tags: currentTags.slice(),
-          body: body
-        };
+        const filename = slug + '.md';
+        const fullContent = generateYamlFrontmatter() + '\n' + body;
 
-        let articles = loadArticles();
-        const existingIndex = articles.findIndex(function (a) { return a.slug === slug; });
+        try {
+          let fileHandle;
 
-        if (existingIndex >= 0) {
-          articles[existingIndex] = article;
-        } else {
-          articles.push(article);
+          if (currentFileHandle) {
+            // Overwrite existing file
+            fileHandle = currentFileHandle;
+          } else {
+            // Create new file
+            fileHandle = await dirHandle.getFileHandle(filename, { create: true });
+          }
+
+          const writable = await fileHandle.createWritable();
+          await writable.write(fullContent);
+          await writable.close();
+
+          // Show success status
+          const statusEl = document.getElementById('save-status');
+          statusEl.innerHTML = '<span class="status-badge status-saved"><i class="bi bi-check-circle"></i> Salvo!</span>';
+          setTimeout(function () {
+            statusEl.innerHTML = '';
+          }, 3000);
+
+          currentSlug = slug;
+          currentFileHandle = fileHandle;
+
+          // Refresh article list
+          await loadArticlesFromDisk();
+
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao salvar arquivo: ' + err.message);
         }
-
-        saveArticles(articles);
-        currentSlug = slug;
-        alert('Artigo salvo localmente com sucesso!\n\nClique em "Baixar Arquivo .md" para obter o arquivo e copiá-lo para o repositório.');
       }
 
       // Escape HTML
@@ -599,11 +703,9 @@
       });
 
       document.getElementById('btn-clear').addEventListener('click', clearForm);
-      document.getElementById('btn-delete').addEventListener('click', function () {
-        if (currentSlug) deleteArticle(currentSlug);
-      });
-      document.getElementById('btn-download').addEventListener('click', downloadArticle);
-      document.getElementById('btn-copy-yaml').addEventListener('click', copyYaml);
+      document.getElementById('btn-delete').addEventListener('click', deleteArticle);
+      document.getElementById('btn-open-dir').addEventListener('click', openDirectory);
+      document.getElementById('btn-new').addEventListener('click', clearForm);
 
       // Auto-update preview on input
       ['field-title', 'field-slug', 'field-date', 'field-status', 'field-language',
@@ -613,8 +715,6 @@
 
       // Initialize
       document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
-      renderArticleList();
-      updatePreview();
 
     })();
     </script>
