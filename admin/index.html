@@ -59,7 +59,6 @@
     <body class="d-flex flex-column h-100 bg-light pacman-tech-theme">
         <canvas id="pacman-background" aria-hidden="true"></canvas>
         <main class="flex-shrink-0">
-            <!-- Navbar -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
                 <div class="container px-5">
                     <a class="navbar-brand" href="../index.html"><span class="fw-bolder text-primary">João Carlos Pereira</span></a>
@@ -79,12 +78,11 @@
                 </div>
             </nav>
 
-            <!-- Content -->
             <section class="py-5">
                 <div class="container px-5">
                     <div class="text-center mb-5">
                         <h1 class="display-5 fw-bolder mb-2"><span class="text-gradient d-inline">Admin — Blog</span></h1>
-                        <p class="lead text-muted">Gerencie os artigos do seu blog de forma simples e segura</p>
+                        <p class="lead text-muted">Editor local para artigos — sem token, sem servidor</p>
                     </div>
 
                     <div class="row justify-content-center">
@@ -92,7 +90,10 @@
                             <div class="card shadow-sm rounded-4 mb-4">
                                 <div class="card-body p-5 text-center">
                                     <h2 class="h4 fw-bold mb-3">Editor de Artigos</h2>
-                                    <p class="text-muted mb-4">Crie, edite e publique artigos no blog diretamente do seu navegador. O editor faz commit automático no repositório.</p>
+                                    <p class="text-muted mb-4">
+                                        Abra a pasta <code>content/blog/</code> do projeto, escreva com editor visual (estilo Google Docs)
+                                        e salve os arquivos <code>.md</code> no disco. Depois faça commit manualmente com Git.
+                                    </p>
                                     <a href="editor.html" class="btn btn-primary btn-admin btn-lg">
                                         <i class="bi bi-pencil-square"></i> Abrir Editor
                                     </a>
@@ -103,30 +104,21 @@
                                 <div class="card-body p-5">
                                     <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary"></i> Como funciona</h5>
                                     <ol class="step-list">
-                                        <li>Clique em <strong>"Abrir Editor"</strong> acima</li>
-                                        <li>Insira seu GitHub Personal Access Token (PAT) com permissão de conteúdo no repositório</li>
-                                        <li>Crie um novo artigo preenchendo título, slug e conteúdo em Markdown</li>
-                                        <li>Clique em <strong>"Publicar no Blog"</strong> — o artigo é commitado automaticamente no repositório</li>
-                                        <li>O GitHub Actions atualiza o manifesto do blog e o artigo aparece no site</li>
+                                        <li>Abra <strong>admin/editor.html</strong> no Chrome ou Edge (duplo clique no arquivo)</li>
+                                        <li>Clique em <strong>Abrir pasta content/blog/</strong> e selecione a pasta do projeto</li>
+                                        <li>O navegador <strong>lembra a última pasta</strong> na próxima vez que abrir</li>
+                                        <li>Crie ou edite artigos com o editor visual completo</li>
+                                        <li>Clique em <strong>Salvar arquivo</strong> — grava <code>{slug}.md</code> e atualiza <code>articles.json</code></li>
+                                        <li>Faça commit e push quando quiser: <code>git add content/blog/ && git commit -m "..." && git push</code></li>
                                     </ol>
 
                                     <hr class="my-4" />
 
-                                    <h5 class="fw-bold mb-3"><i class="bi bi-shield-check text-primary"></i> Por que esse método?</h5>
-                                    <p class="text-muted">
-                                        Sem servidor, sem banco de dados, sem tokens expostos no código. Tudo funciona direto no seu navegador com a API do GitHub.
+                                    <h5 class="fw-bold mb-3"><i class="bi bi-shield-check text-primary"></i> Por que local?</h5>
+                                    <p class="text-muted mb-0">
+                                        Nada de token GitHub no navegador. Os arquivos ficam na sua máquina, no mesmo lugar do repositório.
+                                        Você controla quando publicar no site.
                                     </p>
-
-                                    <hr class="my-4" />
-
-                                    <h5 class="fw-bold mb-3"><i class="bi bi-key text-primary"></i> Gerar seu PAT</h5>
-                                    <p class="text-muted">
-                                        Acesse [GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens](https://github.com/settings/personal-access-tokens/new) e crie um token com:
-                                    </p>
-                                    <ul class="text-muted">
-                                        <li><strong>Repository access:</strong> apenas <code>JoaoCarlosPereira/joaocarlospereira.github.io</code></li>
-                                        <li><strong>Permissões:</strong> Contents → Read and write</li>
-                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -137,9 +129,7 @@
 
         <footer class="bg-white py-4 mt-auto">
             <div class="container px-5">
-                <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                    <div class="col-auto"><div class="small m-0">Copyright &copy; João Carlos Pereira 2026</div></div>
-                </div>
+                <div class="col-auto"><div class="small m-0">Copyright &copy; João Carlos Pereira 2026</div>
             </div>
         </footer>
 

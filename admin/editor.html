@@ -14,16 +14,10 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
         <link href="../css/styles.css" rel="stylesheet" />
         <link href="../responsive-fixes.css" rel="stylesheet" />
-        <!-- TinyMCE WYSIWYG Editor -->
-        <script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.5/tinymce.min.js" integrity="sha256-2ghn3zdnAWfpITx/0Lf2qzUVqVaYchMmHAzOy3pQcHk=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.5/tinymce.min.js" crossorigin="anonymous"></script>
         <style>
-            .editor-container {
-                min-height: 70vh;
-            }
-            .artigos-list {
-                max-height: 400px;
-                overflow-y: auto;
-            }
+            .editor-container { min-height: 70vh; }
+            .artigos-list { max-height: 420px; overflow-y: auto; }
             .artigo-item {
                 padding: 0.75rem 1rem;
                 border-radius: 8px;
@@ -33,22 +27,10 @@
                 cursor: pointer;
                 transition: all 0.2s;
             }
-            .artigo-item:hover {
-                background: #e9ecef;
-                border-color: #1e30f3;
-            }
-            .artigo-item.active {
-                background: #e7f1ff;
-                border-color: #1e30f3;
-            }
-            .artigo-item .title {
-                font-weight: 600;
-                font-size: 0.95rem;
-            }
-            .artigo-item .meta {
-                font-size: 0.8rem;
-                color: #666;
-            }
+            .artigo-item:hover { background: #e9ecef; border-color: #1e30f3; }
+            .artigo-item.active { background: #e7f1ff; border-color: #1e30f3; }
+            .artigo-item .title { font-weight: 600; font-size: 0.95rem; }
+            .artigo-item .meta { font-size: 0.8rem; color: #666; }
             .tag-badge {
                 display: inline-block;
                 padding: 2px 8px;
@@ -57,99 +39,56 @@
                 font-size: 0.75rem;
                 margin: 2px;
             }
-            .tag-remove {
-                cursor: pointer;
-                margin-left: 4px;
-                font-weight: bold;
-            }
-            .tag-remove:hover {
-                color: #dc3545;
-            }
+            .tag-remove { cursor: pointer; margin-left: 4px; font-weight: bold; }
+            .tag-remove:hover { color: #dc3545; }
             .yaml-preview {
                 background: #1e1e1e;
                 color: #d4d4d4;
-                font-family: 'Consolas', 'Courier New', monospace;
+                font-family: Consolas, 'Courier New', monospace;
                 font-size: 0.85rem;
                 padding: 1rem;
                 border-radius: 8px;
-                overflow-x: auto;
                 white-space: pre-wrap;
                 word-wrap: break-word;
-                max-height: 300px;
+                max-height: 280px;
                 overflow-y: auto;
             }
             .preview-area {
-                min-height: 300px;
-                max-height: 500px;
+                min-height: 200px;
+                max-height: 400px;
                 overflow-y: auto;
                 background: #fff;
                 border: 1px solid #dee2e6;
                 border-radius: 8px;
                 padding: 1rem;
             }
-            .preview-area h1, .preview-area h2, .preview-area h3 {
-                margin-top: 1rem;
-            }
-            .preview-area pre {
-                background: #f4f4f4;
-                padding: 1rem;
-                border-radius: 6px;
-                overflow-x: auto;
-            }
-            .preview-area code {
-                background: #f4f4f4;
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-size: 0.85rem;
-            }
-            .preview-area blockquote {
-                border-left: 4px solid #1e30f3;
-                padding-left: 1rem;
-                color: #666;
-                margin: 1rem 0;
-            }
-            .btn-publicar {
+            .btn-salvar {
                 background: linear-gradient(135deg, #1e30f3 0%, #e21e80 100%);
                 border: none;
                 font-weight: 600;
-            }
-            .btn-publicar:hover {
-                opacity: 0.9;
                 color: #fff;
             }
+            .btn-salvar:hover { opacity: 0.9; color: #fff; }
             .status-msg {
                 padding: 6px 12px;
                 border-radius: 8px;
                 font-size: 0.85rem;
                 font-weight: 600;
             }
-            .status-success {
-                background: #d4edda;
-                color: #155724;
-            }
-            .status-error {
-                background: #f8d7da;
-                color: #721c24;
-            }
-            .status-loading {
-                background: #fff3cd;
-                color: #856404;
-            }
-            .token-section {
-                background: #fff3cd;
-                border: 1px solid #ffc107;
+            .status-success { background: #d4edda; color: #155724; }
+            .status-error { background: #f8d7da; color: #721c24; }
+            .status-loading { background: #fff3cd; color: #856404; }
+            .dir-badge {
+                background: #e7f1ff;
+                color: #004085;
+                padding: 8px 14px;
                 border-radius: 8px;
-                padding: 1rem;
-                margin-bottom: 1rem;
+                font-size: 0.9rem;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
             }
-            /* TinyMCE customizations */
-            .tox-tinymce {
-                border-radius: 8px !important;
-                font-family: 'Plus Jakarta Sans', sans-serif !important;
-            }
-            .tox .tox-editor-header {
-                border-radius: 8px 8px 0 0 !important;
-            }
+            .tox-tinymce { border-radius: 8px !important; }
             .word-count-bar {
                 background: #f8f9fa;
                 border: 1px solid #dee2e6;
@@ -159,15 +98,11 @@
                 font-size: 0.85rem;
                 color: #666;
             }
-            .word-count-bar i {
-                margin-right: 0.5rem;
-            }
         </style>
     </head>
     <body class="d-flex flex-column h-100 bg-light pacman-tech-theme">
         <canvas id="pacman-background" aria-hidden="true"></canvas>
         <main class="flex-shrink-0">
-            <!-- Navbar -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
                 <div class="container px-5">
                     <a class="navbar-brand" href="../index.html"><span class="fw-bolder text-primary">João Carlos Pereira</span></a>
@@ -187,66 +122,48 @@
                 </div>
             </nav>
 
-            <!-- Editor Content -->
             <section class="py-5 editor-container">
                 <div class="container px-5">
                     <div class="text-center mb-4">
                         <h1 class="display-5 fw-bolder mb-2"><span class="text-gradient d-inline">Editor de Artigos</span></h1>
-                        <p class="lead text-muted">Crie e publique artigos no blog com um editor completo, igual ao Google Docs</p>
+                        <p class="lead text-muted">Editor completo — salva arquivos em <code>content/blog/</code> no seu computador</p>
                     </div>
 
-                    <!-- Token Section -->
-                    <div id="token-section" class="token-section" hidden>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="flex-grow-1">
-                                <label class="form-label fw-bold mb-1">Token de Acesso (PAT)</label>
-                                <p class="small text-muted mb-0">Insira seu GitHub Personal Access Token com permissão "Contents" no repositório. O token fica salvo no navegador.</p>
-                            </div>
-                            <div class="text-end">
-                                <button type="button" class="btn btn-sm btn-outline-dark" id="btn-show-token">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger ms-1" id="btn-clear-token">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <input type="password" class="form-control" id="field-token" placeholder="github_pat_XXXXXXXXXXXXXXXXXXXXXXXX" />
-                        </div>
-                    </div>
-
-                    <!-- Auth Status -->
-                    <div id="auth-status" class="mb-3"></div>
-
-                    <!-- Actions -->
                     <div class="text-center mb-4">
-                        <button type="button" class="btn btn-primary" id="btn-autenticar">
-                            <i class="bi bi-box-arrow-in-right"></i> Autenticar
-                        </button>
-                        <button type="button" class="btn btn-success btn-publicar ms-2" id="btn-novo" hidden>
-                            <i class="bi bi-plus-circle"></i> Novo Artigo
-                        </button>
+                        <div id="dir-status" class="dir-badge mb-3">
+                            <i class="bi bi-folder2"></i>
+                            <span id="dir-label">Nenhuma pasta selecionada</span>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-primary" id="btn-abrir-pasta">
+                                <i class="bi bi-folder2-open"></i> Abrir pasta content/blog/
+                            </button>
+                            <button type="button" class="btn btn-success btn-salvar ms-2" id="btn-novo" hidden>
+                                <i class="bi bi-plus-circle"></i> Novo artigo
+                            </button>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" id="fs-hint">
+                            Use Chrome ou Edge. O navegador lembra a última pasta escolhida.
+                        </p>
                     </div>
 
-                    <!-- Article List -->
-                    <div class="row g-4" id="list-section" hidden>
+                    <div class="row g-4" id="workspace" hidden>
                         <div class="col-md-4">
                             <div class="card shadow-sm rounded-4 h-100">
                                 <div class="card-header bg-white fw-bold">
-                                    <i class="bi bi-file-earmark-text"></i> Artigos Existentes
+                                    <i class="bi bi-file-earmark-text"></i> Artigos na pasta
                                 </div>
-                                <div class="card-body">
-                                    <div id="artigos-list" class="artigos-list">
-                                        <p class="text-muted text-center py-3">Carregando artigos...</p>
+                                <div class="card-body p-0">
+                                    <div id="artigos-list" class="artigos-list p-3">
+                                        <p class="text-muted text-center py-3 mb-0">Carregando…</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-8">
-                            <div class="card shadow-sm rounded-4 h-100">
-                                <div class="card-header bg-white fw-bold d-flex align-items-center justify-content-between">
-                                    <span><i class="bi bi-pencil-square"></i> <span id="form-title">Editor</span></span>
+                            <div class="card shadow-sm rounded-4">
+                                <div class="card-header bg-white fw-bold d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                    <span><i class="bi bi-pencil-square"></i> <span id="form-title">Novo artigo</span></span>
                                     <span id="save-status"></span>
                                 </div>
                                 <div class="card-body">
@@ -254,15 +171,14 @@
                                         <div class="row g-3 mb-3">
                                             <div class="col-md-6">
                                                 <label class="form-label fw-bold">Título <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="field-title" placeholder="Ex.: Como usar GitHub Pages" required />
+                                                <input type="text" class="form-control" id="field-title" required />
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label fw-bold">Slug <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="field-slug" placeholder="ex-como-usar-github-pages" required />
-                                                <div class="form-text">Nome do arquivo: <code>{slug}.md</code></div>
+                                                <input type="text" class="form-control" id="field-slug" required />
+                                                <div class="form-text">Arquivo: <code>{slug}.md</code></div>
                                             </div>
                                         </div>
-
                                         <div class="row g-3 mb-3">
                                             <div class="col-md-4">
                                                 <label class="form-label fw-bold">Data</label>
@@ -283,60 +199,45 @@
                                                 </select>
                                             </div>
                                         </div>
-
                                         <div class="row g-3 mb-3">
                                             <div class="col-md-6">
-                                                <label class="form-label fw-bold">SEO Título</label>
-                                                <input type="text" class="form-control" id="field-seo-title" placeholder="Título para buscadores" />
+                                                <label class="form-label fw-bold">SEO título</label>
+                                                <input type="text" class="form-control" id="field-seo-title" />
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label fw-bold">SEO Descrição</label>
-                                                <input type="text" class="form-control" id="field-seo-desc" placeholder="Descrição curta para buscadores" />
+                                                <label class="form-label fw-bold">SEO descrição</label>
+                                                <input type="text" class="form-control" id="field-seo-desc" />
                                             </div>
                                         </div>
-
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">Tags</label>
                                             <div class="input-group">
-                                                <input type="text" class="form-control" id="field-tag-input" placeholder="Digite uma tag e pressione Enter" />
-                                                <button type="button" class="btn btn-outline-secondary" id="btn-add-tag">
-                                                    <i class="bi bi-plus"></i>
-                                                </button>
+                                                <input type="text" class="form-control" id="field-tag-input" placeholder="Enter para adicionar" />
+                                                <button type="button" class="btn btn-outline-secondary" id="btn-add-tag"><i class="bi bi-plus"></i></button>
                                             </div>
                                             <div id="tag-list" class="mt-2"></div>
-                                            <div class="form-text">Pressione Enter para adicionar cada tag</div>
                                         </div>
-
                                         <div class="row g-3 mb-3">
                                             <div class="col-md-6">
-                                                <label class="form-label fw-bold">Título em Inglês</label>
-                                                <input type="text" class="form-control" id="field-en-title" placeholder="Opcional" />
+                                                <label class="form-label fw-bold">Título em inglês</label>
+                                                <input type="text" class="form-control" id="field-en-title" />
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label fw-bold">Caminho corpo em Inglês</label>
-                                                <input type="text" class="form-control" id="field-en-body" placeholder="Ex.: content/blog/meu-post.en.md" />
+                                                <label class="form-label fw-bold">Caminho corpo EN</label>
+                                                <input type="text" class="form-control" id="field-en-body" placeholder="content/blog/post.en.md" />
                                             </div>
                                         </div>
-
-                                        <!-- TinyMCE Editor -->
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">Conteúdo do Artigo</label>
-                                            <textarea id="field-body" style="display:none;"></textarea>
-                                            <div class="form-text">
-                                                <i class="bi bi-info-circle"></i>
-                                                Use a barra de ferramentas para formatar. O conteúdo será salvo automaticamente em Markdown.
+                                            <label class="form-label fw-bold">Conteúdo</label>
+                                            <textarea id="field-body"></textarea>
+                                            <div class="word-count-bar mt-2" id="word-count-bar">
+                                                <i class="bi bi-text-paragraph"></i>
+                                                <span id="word-count">0</span> palavras · ~<span id="read-time">0</span> min de leitura
                                             </div>
                                         </div>
-
-                                        <!-- Word count -->
-                                        <div class="word-count-bar" id="word-count-bar" hidden>
-                                            <i class="bi bi-text-paragraph"></i>
-                                            <span id="word-count">0</span> palavras &bull; <span id="read-time">0 min</span> de leitura
-                                        </div>
-
-                                        <div class="d-flex flex-wrap gap-2 mb-3">
-                                            <button type="submit" class="btn btn-success btn-publicar" id="btn-publicar">
-                                                <i class="bi bi-cloud-upload"></i> Publicar no Blog
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button type="submit" class="btn btn-salvar" id="btn-salvar">
+                                                <i class="bi bi-save"></i> Salvar arquivo
                                             </button>
                                             <button type="button" class="btn btn-outline-secondary" id="btn-limpar">
                                                 <i class="bi bi-eraser"></i> Limpar
@@ -348,35 +249,25 @@
                                     </form>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Preview Section -->
-                    <div class="row g-4" id="preview-section" hidden>
-                        <div class="col-md-6">
-                            <div class="card shadow-sm rounded-4">
-                                <div class="card-header bg-white fw-bold">
-                                    <i class="bi bi-file-earmark-code"></i> YAML Frontmatter
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm rounded-4">
+                                        <div class="card-header bg-white fw-bold small">YAML frontmatter</div>
+                                        <div class="card-body"><pre id="yaml-preview" class="yaml-preview mb-0"></pre></div>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <div id="yaml-preview" class="yaml-preview"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card shadow-sm rounded-4">
-                                <div class="card-header bg-white fw-bold">
-                                    <i class="bi bi-eye"></i> Preview Markdown
-                                </div>
-                                <div class="card-body">
-                                    <div id="preview-content" class="preview-area"></div>
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm rounded-4">
+                                        <div class="card-header bg-white fw-bold small">Preview</div>
+                                        <div class="card-body"><div id="preview-content" class="preview-area"></div></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <p class="text-center text-muted mt-5" id="instructions">
-                        <i class="bi bi-info-circle"></i> Insira seu GitHub PAT e clique em <strong>"Autenticar"</strong> para começar
+                        <i class="bi bi-info-circle"></i> Abra a pasta <strong>content/blog/</strong> do projeto para começar. Depois faça commit manualmente com Git.
                     </p>
                 </div>
             </section>
@@ -384,676 +275,14 @@
 
         <footer class="bg-white py-4 mt-auto">
             <div class="container px-5">
-                <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                    <div class="col-auto"><div class="small m-0">Copyright &copy; João Carlos Pereira 2026</div></div>
-                </div>
+                <div class="col-auto"><div class="small m-0">Copyright &copy; João Carlos Pereira 2026</div></div>
             </div>
         </footer>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/turndown@7.2.0/dist/turndown.js"></script>
         <script src="../js/scripts.js"></script>
-        <script>
-        (function () {
-            'use strict';
-
-            const REPO_OWNER = 'JoaoCarlosPereira';
-            const REPO_NAME = 'joaocarlospereira.github.io';
-            const REPO_BRANCH = 'main';
-            const ARTICLES_FOLDER = 'content/blog';
-            const TOKEN_STORAGE_KEY = 'blog_editor_token';
-
-            let authToken = '';
-            let currentSlug = null;
-            let currentSha = null;
-            let currentTags = [];
-            let quill = null;
-
-            // Load token from localStorage
-            function loadToken() {
-                try {
-                    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-                    if (token) {
-                        authToken = token;
-                        document.getElementById('field-token').value = token;
-                    }
-                } catch (e) {
-                    console.warn('Não foi possível acessar localStorage:', e);
-                }
-            }
-
-            // Save token to localStorage
-            function saveToken(token) {
-                try {
-                    localStorage.setItem(TOKEN_STORAGE_KEY, token);
-                    authToken = token;
-                } catch (e) {
-                    console.warn('Não foi possível salvar token:', e);
-                }
-            }
-
-            // Clear token
-            function clearToken() {
-                try {
-                    localStorage.removeItem(TOKEN_STORAGE_KEY);
-                } catch (e) {}
-                authToken = '';
-                document.getElementById('field-token').value = '';
-            }
-
-            // Authenticate
-            async function autenticar() {
-                const token = document.getElementById('field-token').value.trim();
-                if (!token) {
-                    alert('Insira seu GitHub Personal Access Token.');
-                    return;
-                }
-
-                showStatus('Autenticando...', 'loading');
-
-                try {
-                    const response = await fetch('https://api.github.com/user', {
-                        headers: {
-                            'Authorization': 'Bearer ' + token,
-                            'Accept': 'application/vnd.github+json',
-                            'User-Agent': 'blog-editor'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Token inválido ou expirado. Erro: ' + response.status);
-                    }
-
-                    const user = await response.json();
-                    saveToken(token);
-
-                    document.getElementById('auth-status').innerHTML =
-                        '<div class="alert alert-success"><i class="bi bi-check-circle"></i> Autenticado como <strong>' + escapeHtml(user.login) + '</strong></div>';
-                    document.getElementById('token-section').hidden = true;
-                    document.getElementById('btn-autenticar').hidden = true;
-                    document.getElementById('btn-novo').hidden = false;
-
-                    await carregarArtigos();
-
-                } catch (err) {
-                    showStatus('Erro: ' + err.message, 'error');
-                }
-            }
-
-            // Show status message
-            function showStatus(msg, type) {
-                const el = document.getElementById('save-status');
-                if (type === 'success') {
-                    el.innerHTML = '<span class="status-msg status-success">' + escapeHtml(msg) + '</span>';
-                } else if (type === 'error') {
-                    el.innerHTML = '<span class="status-msg status-error">' + escapeHtml(msg) + '</span>';
-                } else if (type === 'loading') {
-                    el.innerHTML = '<span class="status-msg status-loading"><i class="bi bi-hourglass-split"></i> ' + escapeHtml(msg) + '</span>';
-                }
-                if (type === 'success' || type === 'error') {
-                    setTimeout(function () {
-                        el.innerHTML = '';
-                    }, 5000);
-                }
-            }
-
-            // Fetch article from GitHub
-            async function fetchArticleFromGitHub(slug) {
-                const url = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + ARTICLES_FOLDER + '/' + slug + '.md?ref=' + REPO_BRANCH;
-                const response = await fetch(url, {
-                    headers: { 'Authorization': 'Bearer ' + authToken }
-                });
-                if (!response.ok) {
-                    throw new Error('Artigo não encontrado: ' + slug);
-                }
-                const data = await response.json();
-                return {
-                    content: atob(data.content),
-                    sha: data.sha,
-                    path: data.path
-                };
-            }
-
-            // Parse YAML frontmatter from content
-            function parseArticle(content) {
-                const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-                if (!match) {
-                    return { metadata: {}, body: content };
-                }
-
-                const metadata = {};
-                const lines = match[1].split(/\r?\n/);
-                lines.forEach(function (line) {
-                    const m = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/);
-                    if (m) {
-                        let val = m[2].trim();
-                        if (val.startsWith('"') && val.endsWith('"')) {
-                            val = val.slice(1, -1);
-                        } else if (val === '[]') {
-                            val = [];
-                        } else if (/^-?\d+(\.\d+)?$/.test(val)) {
-                            val = Number(val);
-                        }
-                        metadata[m[1]] = val;
-                    }
-                });
-
-                return {
-                    metadata: metadata,
-                    body: match[2].trim()
-                };
-            }
-
-            // Convert HTML to Markdown
-            function htmlToMarkdown(html) {
-                if (!html || !html.trim()) return '';
-
-                // Create a temporary container
-                const container = document.createElement('div');
-                container.innerHTML = html;
-
-                // Process the HTML tree and convert to Markdown
-                return processNode(container);
-            }
-
-            function processNode(node) {
-                if (node.nodeType === 3) { // Text node
-                    return node.textContent;
-                }
-
-                if (node.nodeType !== 1) return ''; // Skip other nodes
-
-                const tag = node.tagName.toLowerCase();
-                let content = '';
-
-                // Process children
-                for (let i = 0; i < node.childNodes.length; i++) {
-                    content += processNode(node.childNodes[i]);
-                }
-
-                // Remove trailing whitespace
-                content = content.replace(/\s+$/, '');
-
-                switch (tag) {
-                    case 'h1': return '\n# ' + content.trim() + '\n\n';
-                    case 'h2': return '\n## ' + content.trim() + '\n\n';
-                    case 'h3': return '\n### ' + content.trim() + '\n\n';
-                    case 'h4': return '\n#### ' + content.trim() + '\n\n';
-                    case 'h5': return '\n##### ' + content.trim() + '\n\n';
-                    case 'h6': return '\n###### ' + content.trim() + '\n\n';
-                    case 'p': return content.trim() + '\n\n';
-                    case 'br': return '\n';
-                    case 'strong':
-                    case 'b': return '**' + content + '**';
-                    case 'em':
-                    case 'i': return '*' + content + '*';
-                    case 'u': return content;
-                    case 'del':
-                    case 's': return '~~' + content + '~~';
-                    case 'code':
-                        if (node.parentElement && node.parentElement.tagName.toLowerCase() === 'pre') {
-                            return '```\n' + content.trim() + '\n```\n\n';
-                        }
-                        return '`' + content + '`';
-                    case 'pre': return '```\n' + content.trim() + '\n```\n\n';
-                    case 'blockquote':
-                        const lines = content.trim().split('\n');
-                        return '\n' + lines.map(function (l) { return '> ' + l; }).join('\n') + '\n\n';
-                    case 'ul': return '\n' + content + '\n';
-                    case 'ol': return '\n' + content + '\n';
-                    case 'li':
-                        if (node.parentElement && node.parentElement.tagName.toLowerCase() === 'ol') {
-                            const idx = Array.prototype.indexOf.call(node.parentElement.children, node) + 1;
-                            return idx + '. ' + content.trim() + '\n';
-                        }
-                        return '- ' + content.trim() + '\n';
-                    case 'a': return '[' + content + '](' + (node.getAttribute('href') || '') + ')';
-                    case 'img': return '![' + (node.getAttribute('alt') || '') + '](' + (node.getAttribute('src') || '') + ')';
-                    case 'hr': return '\n---\n\n';
-                    default: return content;
-                }
-            }
-
-            // Convert Markdown to HTML for preview
-            function markdownToHtml(markdown) {
-                if (!markdown || !markdown.trim()) return '<p><em>Nada escrito ainda...</em></p>';
-                return marked.parse(markdown, { breaks: true, gfm: true });
-            }
-
-            // Load article into form
-            async function carregarArtigo(slug) {
-                try {
-                    showStatus('Carregando...', 'loading');
-                    const article = await fetchArticleFromGitHub(slug);
-                    const parsed = parseArticle(article.content);
-
-                    currentSlug = slug;
-                    currentSha = article.sha;
-
-                    document.getElementById('field-title').value = parsed.metadata.title || '';
-                    document.getElementById('field-slug').value = parsed.metadata.slug || slug;
-                    document.getElementById('field-date').value = parsed.metadata.date || '';
-                    document.getElementById('field-status').value = parsed.metadata.status || 'published';
-                    document.getElementById('field-language').value = parsed.metadata.language || 'pt';
-                    document.getElementById('field-seo-title').value = parsed.metadata.seo_title || '';
-                    document.getElementById('field-seo-desc').value = parsed.metadata.seo_description || '';
-                    document.getElementById('field-en-title').value = parsed.metadata.en_title || '';
-                    document.getElementById('field-en-body').value = parsed.metadata.en_body_path || '';
-
-                    // Set TinyMCE content
-                    if (quill) {
-                        quill.setText(''); // Clear existing
-                        if (parsed.body) {
-                            // Convert Markdown to HTML for WYSIWYG display
-                            const html = markdownToHtml(parsed.body);
-                            quill.clipboard.dangerouslyPasteHTML(0, html);
-                        }
-                    }
-
-                    document.getElementById('form-title').textContent = 'Editar: ' + escapeHtml(slug);
-                    document.getElementById('btn-excluir').hidden = false;
-                    document.getElementById('btn-publicar').innerHTML = '<i class="bi bi-pencil"></i> Atualizar no Blog';
-
-                    currentTags = Array.isArray(parsed.metadata.tags) ? parsed.metadata.tags : [];
-                    renderTags();
-                    updatePreview();
-                    updateWordCount();
-
-                    document.getElementById('list-section').hidden = false;
-                    document.getElementById('preview-section').hidden = false;
-                    document.getElementById('word-count-bar').hidden = false;
-
-                    // Highlight active
-                    document.querySelectorAll('.artigo-item').forEach(function (item) {
-                        item.classList.toggle('active', item.getAttribute('data-slug') === slug);
-                    });
-
-                    showStatus('Artigo carregado com sucesso!', 'success');
-
-                } catch (err) {
-                    showStatus('Erro: ' + err.message, 'error');
-                }
-            }
-
-            // Load articles list from GitHub
-            async function carregarArtigos() {
-                try {
-                    const url = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + ARTICLES_FOLDER + '?ref=' + REPO_BRANCH;
-                    const response = await fetch(url, {
-                        headers: { 'Authorization': 'Bearer ' + authToken }
-                    });
-                    if (!response.ok) {
-                        throw new Error('Não foi possível carregar a lista de artigos.');
-                    }
-                    const data = await response.json();
-
-                    const files = data.filter(function (item) {
-                        return item.type === 'file' && item.name.endsWith('.md') && item.name !== 'articles.json';
-                    }).map(function (item) {
-                        return {
-                            name: item.name.replace(/\.md$/, ''),
-                            path: item.path
-                        };
-                    }).sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-
-                    const listEl = document.getElementById('artigos-list');
-                    if (files.length === 0) {
-                        listEl.innerHTML = '<p class="text-muted text-center py-3">Nenhum artigo encontrado. Crie um novo!</p>';
-                    } else {
-                        let html = '';
-                        files.forEach(function (f) {
-                            html += '<div class="artigo-item" data-slug="' + escapeHtml(f.name) + '">' +
-                                '<div class="title">' + escapeHtml(f.name) + '</div>' +
-                                '<div class="meta"><i class="bi bi-file-earmark"></i> ' + escapeHtml(f.name) + '.md</div>' +
-                            '</div>';
-                        });
-                        listEl.innerHTML = html;
-
-                        listEl.querySelectorAll('.artigo-item').forEach(function (item) {
-                            item.addEventListener('click', function () {
-                                carregarArtigo(this.getAttribute('data-slug'));
-                            });
-                        });
-                    }
-
-                    document.getElementById('list-section').hidden = false;
-
-                } catch (err) {
-                    document.getElementById('artigos-list').innerHTML =
-                        '<p class="text-danger text-center py-3">Erro: ' + escapeHtml(err.message) + '</p>';
-                    document.getElementById('list-section').hidden = false;
-                }
-            }
-
-            // Clear form
-            function limparForm() {
-                currentSlug = null;
-                currentSha = null;
-                currentTags = [];
-                document.getElementById('article-form').reset();
-                document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
-                document.getElementById('form-title').textContent = 'Novo Artigo';
-                document.getElementById('btn-excluir').hidden = true;
-                document.getElementById('btn-publicar').innerHTML = '<i class="bi bi-cloud-upload"></i> Publicar no Blog';
-
-                // Clear TinyMCE
-                if (quill) {
-                    quill.setText('');
-                }
-
-                renderTags();
-                updatePreview();
-                updateWordCount();
-
-                document.getElementById('list-section').hidden = false;
-                document.getElementById('preview-section').hidden = true;
-                document.getElementById('word-count-bar').hidden = true;
-            }
-
-            // Delete article
-            async function excluirArtigo() {
-                if (!currentSlug || !confirm('Tem certeza que deseja excluir "' + currentSlug + '"?')) return;
-
-                showStatus('Excluindo...', 'loading');
-
-                try {
-                    const url = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + ARTICLES_FOLDER + '/' + currentSlug + '.md';
-                    const response = await fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': 'Bearer ' + authToken,
-                            'Accept': 'application/vnd.github+json'
-                        },
-                        body: JSON.stringify({
-                            message: 'Excluir artigo: ' + currentSlug,
-                            sha: currentSha,
-                            branch: REPO_BRANCH
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.message || 'Falha ao excluir');
-                    }
-
-                    showStatus('Artigo excluído com sucesso!', 'success');
-                    limparForm();
-                    await carregarArtigos();
-
-                } catch (err) {
-                    showStatus('Erro: ' + err.message, 'error');
-                }
-            }
-
-            // Publish article
-            async function publicarArtigo() {
-                const title = document.getElementById('field-title').value.trim();
-                const slug = document.getElementById('field-slug').value.trim();
-
-                if (!title || !slug) {
-                    alert('Preencha o título e slug do artigo.');
-                    return;
-                }
-
-                // Get content from TinyMCE and convert to Markdown
-                const editorContent = quill.getText().trim();
-                if (!editorContent) {
-                    alert('Escreva o conteúdo do artigo.');
-                    return;
-                }
-
-                showStatus('Publicando...', 'loading');
-
-                try {
-                    // Get HTML from TinyMCE and convert to Markdown
-                    const html = quill.root.innerHTML;
-                    const markdown = htmlToMarkdown(html);
-
-                    const yaml = generateYamlFrontmatter();
-                    const fullContent = yaml + '\n' + markdown;
-                    const encodedContent = btoa(unescape(encodeURIComponent(fullContent)));
-
-                    const url = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + ARTICLES_FOLDER + '/' + slug + '.md';
-
-                    const payload = {
-                        message: 'Novo artigo: ' + title,
-                        content: encodedContent,
-                        branch: REPO_BRANCH
-                    };
-
-                    if (currentSha) {
-                        payload.sha = currentSha;
-                        payload.message = 'Atualizar artigo: ' + title;
-                    }
-
-                    const response = await fetch(url, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': 'Bearer ' + authToken,
-                            'Accept': 'application/vnd.github+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.message || 'Falha ao publicar');
-                    }
-
-                    const result = await response.json();
-                    showStatus('Artigo publicado com sucesso!', 'success');
-
-                    currentSha = result.content.sha;
-                    await carregarArtigos();
-
-                } catch (err) {
-                    showStatus('Erro: ' + err.message, 'error');
-                }
-            }
-
-            // Generate YAML frontmatter
-            function generateYamlFrontmatter() {
-                const title = document.getElementById('field-title').value.trim();
-                const slug = document.getElementById('field-slug').value.trim();
-                const date = document.getElementById('field-date').value;
-                const status = document.getElementById('field-status').value;
-                const language = document.getElementById('field-language').value;
-                const seo_title = document.getElementById('field-seo-title').value.trim();
-                const seo_description = document.getElementById('field-seo-desc').value.trim();
-                const en_title = document.getElementById('field-en-title').value.trim();
-                const en_body_path = document.getElementById('field-en-body').value.trim();
-
-                let yaml = '---\n';
-                yaml += 'title: "' + escapeYamlString(title) + '"\n';
-                yaml += 'slug: ' + escapeYamlValue(slug) + '\n';
-                yaml += 'date: ' + date + '\n';
-                yaml += 'status: ' + status + '\n';
-                yaml += 'language: ' + language + '\n';
-
-                if (en_title) yaml += 'en_title: "' + escapeYamlString(en_title) + '"\n';
-                else yaml += 'en_title: ""\n';
-
-                if (en_body_path) yaml += 'en_body_path: ' + escapeYamlValue(en_body_path) + '\n';
-                else yaml += 'en_body_path: ""\n';
-
-                if (seo_title) yaml += 'seo_title: "' + escapeYamlString(seo_title) + '"\n';
-                else yaml += 'seo_title: ""\n';
-
-                if (seo_description) yaml += 'seo_description: "' + escapeYamlString(seo_description) + '"\n';
-                else yaml += 'seo_description: ""\n';
-
-                if (currentTags.length > 0) {
-                    yaml += 'tags: [' + currentTags.map(function (t) { return '"' + escapeYamlString(t) + '"'; }).join(', ') + ']\n';
-                } else {
-                    yaml += 'tags: []\n';
-                }
-
-                yaml += '---\n';
-                return yaml;
-            }
-
-            function escapeYamlString(str) {
-                return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-            }
-
-            function escapeYamlValue(str) {
-                if (/^[a-zA-Z0-9_/.-]+$/.test(str)) return str;
-                return '"' + escapeYamlString(str) + '"';
-            }
-
-            // Update preview
-            function updatePreview() {
-                const yaml = generateYamlFrontmatter();
-
-                // Get content from TinyMCE
-                let body = '';
-                if (quill) {
-                    const html = quill.root.innerHTML;
-                    if (html.trim() && html !== '<p><br></p>') {
-                        body = htmlToMarkdown(html);
-                    }
-                }
-
-                document.getElementById('yaml-preview').textContent = yaml;
-                document.getElementById('preview-content').innerHTML = markdownToHtml(body);
-            }
-
-            // Update word count
-            function updateWordCount() {
-                if (!quill) return;
-
-                const text = quill.getText().trim();
-                const words = text ? text.split(/\s+/).length : 0;
-                const readTime = Math.max(1, Math.ceil(words / 200));
-
-                document.getElementById('word-count').textContent = words;
-                document.getElementById('read-time').textContent = readTime + ' min';
-            }
-
-            // Tags management
-            function renderTags() {
-                const container = document.getElementById('tag-list');
-                if (currentTags.length === 0) {
-                    container.innerHTML = '';
-                    return;
-                }
-                let html = '';
-                currentTags.forEach(function (tag, i) {
-                    html += '<span class="tag-badge">' + escapeHtml(tag) +
-                        ' <span class="tag-remove" data-index="' + i + '">&times;</span></span> ';
-                });
-                container.innerHTML = html;
-
-                container.querySelectorAll('.tag-remove').forEach(function (el) {
-                    el.addEventListener('click', function () {
-                        currentTags.splice(parseInt(el.getAttribute('data-index')), 1);
-                        renderTags();
-                    });
-                });
-            }
-
-            document.getElementById('field-tag-input').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const val = this.value.trim();
-                    if (val && !currentTags.includes(val)) {
-                        currentTags.push(val);
-                        renderTags();
-                        this.value = '';
-                    }
-                }
-            });
-
-            document.getElementById('btn-add-tag').addEventListener('click', function () {
-                const input = document.getElementById('field-tag-input');
-                const val = input.value.trim();
-                if (val && !currentTags.includes(val)) {
-                    currentTags.push(val);
-                    renderTags();
-                    input.value = '';
-                }
-            });
-
-            // Escape HTML
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text || '';
-                return div.innerHTML;
-            }
-
-            // Event listeners
-            document.getElementById('article-form').addEventListener('submit', function (e) {
-                e.preventDefault();
-                publicarArtigo();
-            });
-
-            document.getElementById('btn-autenticar').addEventListener('click', autenticar);
-            document.getElementById('btn-limpar').addEventListener('click', limparForm);
-            document.getElementById('btn-novo').addEventListener('click', limparForm);
-            document.getElementById('btn-excluir').addEventListener('click', excluirArtigo);
-            document.getElementById('btn-clear-token').addEventListener('click', function () {
-                clearToken();
-                document.getElementById('auth-status').innerHTML = '';
-                document.getElementById('token-section').hidden = true;
-                document.getElementById('btn-autenticar').hidden = false;
-                document.getElementById('btn-novo').hidden = true;
-                document.getElementById('list-section').hidden = true;
-                document.getElementById('preview-section').hidden = true;
-                document.getElementById('word-count-bar').hidden = true;
-                currentSlug = null;
-                currentSha = null;
-            });
-            document.getElementById('btn-show-token').addEventListener('click', function () {
-                const input = document.getElementById('field-token');
-                input.type = input.type === 'password' ? 'text' : 'password';
-            });
-
-            // Initialize
-            document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
-            loadToken();
-
-            // Initialize TinyMCE
-            tinymce.init({
-                selector: '#field-body',
-                height: 400,
-                language: 'pt_BR',
-                plugins: 'lists link image code table autosave',
-                toolbar: [
-                    'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify',
-                    'bullist numlist outdent indent | link image table code | removeformat'
-                ],
-                menubar: 'file edit view insert format tools',
-                menu: {
-                    file: { title: 'Arquivo', items: 'newdocument restoredraft | preview' },
-                    edit: { title: 'Editar', items: 'undo redo | cut copy paste pastetext selectall | searchreplace' },
-                    view: { title: 'Visualizar', items: 'code | visualaid visualchars visualblocks | spellchecker | preview fullscreen' },
-                    insert: { title: 'Inserir', items: 'image link media template codesample inserttable | charmap emoticons hr | pagebreak nonbreaking anchor toc | insertdatetime' },
-                    format: { title: 'Formatar', items: 'bold italic underline strikethrough superscript subscript codeformat | blocks fontname fontsize | forecolor backcolor | formathelper | alignleft aligncenter alignright alignjustify | indent outdent | lineheight' },
-                    tools: { title: 'Ferramentas', items: 'spellchecker code wordcount' },
-                    table: { title: 'Tabela', items: 'inserttable tableprops deletetable | cell row column' }
-                },
-                setup: function (editor) {
-                    editor.on('NodeChange KeyUp SetContent change', function () {
-                        updatePreview();
-                        updateWordCount();
-                    });
-                },
-                placeholder: 'Escreva seu artigo aqui... Use a barra de ferramentas para formatar.',
-                content_style: 'body { font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 16px; line-height: 1.8; }',
-                branding: false,
-                statusbar: true,
-                autoresize_bottom_margin: 0
-            });
-
-            // If token exists, auto-authenticate
-            if (authToken) {
-                autenticar();
-            }
-
-        })();
-        </script>
+        <script src="js/editor-local.js"></script>
     </body>
 </html>
