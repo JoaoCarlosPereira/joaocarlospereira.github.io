@@ -14,6 +14,8 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
         <link href="../css/styles.css" rel="stylesheet" />
         <link href="../responsive-fixes.css" rel="stylesheet" />
+        <!-- TinyMCE WYSIWYG Editor -->
+        <script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.5/tinymce.min.js" integrity="sha256-2ghn3zdnAWfpITx/0Lf2qzUVqVaYchMmHAzOy3pQcHk=" crossorigin="anonymous"></script>
         <style>
             .editor-container {
                 min-height: 70vh;
@@ -140,6 +142,26 @@
                 padding: 1rem;
                 margin-bottom: 1rem;
             }
+            /* TinyMCE customizations */
+            .tox-tinymce {
+                border-radius: 8px !important;
+                font-family: 'Plus Jakarta Sans', sans-serif !important;
+            }
+            .tox .tox-editor-header {
+                border-radius: 8px 8px 0 0 !important;
+            }
+            .word-count-bar {
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                padding: 0.5rem 1rem;
+                margin-top: 0.5rem;
+                font-size: 0.85rem;
+                color: #666;
+            }
+            .word-count-bar i {
+                margin-right: 0.5rem;
+            }
         </style>
     </head>
     <body class="d-flex flex-column h-100 bg-light pacman-tech-theme">
@@ -170,7 +192,7 @@
                 <div class="container px-5">
                     <div class="text-center mb-4">
                         <h1 class="display-5 fw-bolder mb-2"><span class="text-gradient d-inline">Editor de Artigos</span></h1>
-                        <p class="lead text-muted">Crie e publique artigos no blog diretamente do seu navegador</p>
+                        <p class="lead text-muted">Crie e publique artigos no blog com um editor completo, igual ao Google Docs</p>
                     </div>
 
                     <!-- Token Section -->
@@ -296,9 +318,20 @@
                                             </div>
                                         </div>
 
+                                        <!-- TinyMCE Editor -->
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">Conteúdo (Markdown) <span class="text-danger">*</span></label>
-                                            <textarea class="form-control" id="field-body" style="min-height: 250px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9rem; resize: vertical;" placeholder="# Escreva seu artigo aqui...&#10;&#10;Use **Markdown** para formatar:&#10;- **Negrito** e *itálico*&#10;- Listas&#10;- Blocos de código&#10;- Links e imagens" required></textarea>
+                                            <label class="form-label fw-bold">Conteúdo do Artigo</label>
+                                            <textarea id="field-body" style="display:none;"></textarea>
+                                            <div class="form-text">
+                                                <i class="bi bi-info-circle"></i>
+                                                Use a barra de ferramentas para formatar. O conteúdo será salvo automaticamente em Markdown.
+                                            </div>
+                                        </div>
+
+                                        <!-- Word count -->
+                                        <div class="word-count-bar" id="word-count-bar" hidden>
+                                            <i class="bi bi-text-paragraph"></i>
+                                            <span id="word-count">0</span> palavras &bull; <span id="read-time">0 min</span> de leitura
                                         </div>
 
                                         <div class="d-flex flex-wrap gap-2 mb-3">
@@ -374,6 +407,7 @@
             let currentSlug = null;
             let currentSha = null;
             let currentTags = [];
+            let quill = null;
 
             // Load token from localStorage
             function loadToken() {
@@ -510,6 +544,82 @@
                 };
             }
 
+            // Convert HTML to Markdown
+            function htmlToMarkdown(html) {
+                if (!html || !html.trim()) return '';
+
+                // Create a temporary container
+                const container = document.createElement('div');
+                container.innerHTML = html;
+
+                // Process the HTML tree and convert to Markdown
+                return processNode(container);
+            }
+
+            function processNode(node) {
+                if (node.nodeType === 3) { // Text node
+                    return node.textContent;
+                }
+
+                if (node.nodeType !== 1) return ''; // Skip other nodes
+
+                const tag = node.tagName.toLowerCase();
+                let content = '';
+
+                // Process children
+                for (let i = 0; i < node.childNodes.length; i++) {
+                    content += processNode(node.childNodes[i]);
+                }
+
+                // Remove trailing whitespace
+                content = content.replace(/\s+$/, '');
+
+                switch (tag) {
+                    case 'h1': return '\n# ' + content.trim() + '\n\n';
+                    case 'h2': return '\n## ' + content.trim() + '\n\n';
+                    case 'h3': return '\n### ' + content.trim() + '\n\n';
+                    case 'h4': return '\n#### ' + content.trim() + '\n\n';
+                    case 'h5': return '\n##### ' + content.trim() + '\n\n';
+                    case 'h6': return '\n###### ' + content.trim() + '\n\n';
+                    case 'p': return content.trim() + '\n\n';
+                    case 'br': return '\n';
+                    case 'strong':
+                    case 'b': return '**' + content + '**';
+                    case 'em':
+                    case 'i': return '*' + content + '*';
+                    case 'u': return content;
+                    case 'del':
+                    case 's': return '~~' + content + '~~';
+                    case 'code':
+                        if (node.parentElement && node.parentElement.tagName.toLowerCase() === 'pre') {
+                            return '```\n' + content.trim() + '\n```\n\n';
+                        }
+                        return '`' + content + '`';
+                    case 'pre': return '```\n' + content.trim() + '\n```\n\n';
+                    case 'blockquote':
+                        const lines = content.trim().split('\n');
+                        return '\n' + lines.map(function (l) { return '> ' + l; }).join('\n') + '\n\n';
+                    case 'ul': return '\n' + content + '\n';
+                    case 'ol': return '\n' + content + '\n';
+                    case 'li':
+                        if (node.parentElement && node.parentElement.tagName.toLowerCase() === 'ol') {
+                            const idx = Array.prototype.indexOf.call(node.parentElement.children, node) + 1;
+                            return idx + '. ' + content.trim() + '\n';
+                        }
+                        return '- ' + content.trim() + '\n';
+                    case 'a': return '[' + content + '](' + (node.getAttribute('href') || '') + ')';
+                    case 'img': return '![' + (node.getAttribute('alt') || '') + '](' + (node.getAttribute('src') || '') + ')';
+                    case 'hr': return '\n---\n\n';
+                    default: return content;
+                }
+            }
+
+            // Convert Markdown to HTML for preview
+            function markdownToHtml(markdown) {
+                if (!markdown || !markdown.trim()) return '<p><em>Nada escrito ainda...</em></p>';
+                return marked.parse(markdown, { breaks: true, gfm: true });
+            }
+
             // Load article into form
             async function carregarArtigo(slug) {
                 try {
@@ -529,7 +639,17 @@
                     document.getElementById('field-seo-desc').value = parsed.metadata.seo_description || '';
                     document.getElementById('field-en-title').value = parsed.metadata.en_title || '';
                     document.getElementById('field-en-body').value = parsed.metadata.en_body_path || '';
-                    document.getElementById('field-body').value = parsed.body || '';
+
+                    // Set TinyMCE content
+                    if (quill) {
+                        quill.setText(''); // Clear existing
+                        if (parsed.body) {
+                            // Convert Markdown to HTML for WYSIWYG display
+                            const html = markdownToHtml(parsed.body);
+                            quill.clipboard.dangerouslyPasteHTML(0, html);
+                        }
+                    }
+
                     document.getElementById('form-title').textContent = 'Editar: ' + escapeHtml(slug);
                     document.getElementById('btn-excluir').hidden = false;
                     document.getElementById('btn-publicar').innerHTML = '<i class="bi bi-pencil"></i> Atualizar no Blog';
@@ -537,9 +657,11 @@
                     currentTags = Array.isArray(parsed.metadata.tags) ? parsed.metadata.tags : [];
                     renderTags();
                     updatePreview();
+                    updateWordCount();
 
                     document.getElementById('list-section').hidden = false;
                     document.getElementById('preview-section').hidden = false;
+                    document.getElementById('word-count-bar').hidden = false;
 
                     // Highlight active
                     document.querySelectorAll('.artigo-item').forEach(function (item) {
@@ -615,11 +737,19 @@
                 document.getElementById('form-title').textContent = 'Novo Artigo';
                 document.getElementById('btn-excluir').hidden = true;
                 document.getElementById('btn-publicar').innerHTML = '<i class="bi bi-cloud-upload"></i> Publicar no Blog';
+
+                // Clear TinyMCE
+                if (quill) {
+                    quill.setText('');
+                }
+
                 renderTags();
                 updatePreview();
+                updateWordCount();
 
                 document.getElementById('list-section').hidden = false;
                 document.getElementById('preview-section').hidden = true;
+                document.getElementById('word-count-bar').hidden = true;
             }
 
             // Delete article
@@ -661,18 +791,28 @@
             async function publicarArtigo() {
                 const title = document.getElementById('field-title').value.trim();
                 const slug = document.getElementById('field-slug').value.trim();
-                const body = document.getElementById('field-body').value;
 
-                if (!title || !slug || !body) {
-                    alert('Preencha o título, slug e conteúdo do artigo.');
+                if (!title || !slug) {
+                    alert('Preencha o título e slug do artigo.');
+                    return;
+                }
+
+                // Get content from TinyMCE and convert to Markdown
+                const editorContent = quill.getText().trim();
+                if (!editorContent) {
+                    alert('Escreva o conteúdo do artigo.');
                     return;
                 }
 
                 showStatus('Publicando...', 'loading');
 
                 try {
+                    // Get HTML from TinyMCE and convert to Markdown
+                    const html = quill.root.innerHTML;
+                    const markdown = htmlToMarkdown(html);
+
                     const yaml = generateYamlFrontmatter();
-                    const fullContent = yaml + '\n' + body;
+                    const fullContent = yaml + '\n' + markdown;
                     const encodedContent = btoa(unescape(encodeURIComponent(fullContent)));
 
                     const url = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + ARTICLES_FOLDER + '/' + slug + '.md';
@@ -767,12 +907,30 @@
             // Update preview
             function updatePreview() {
                 const yaml = generateYamlFrontmatter();
-                const body = document.getElementById('field-body').value;
+
+                // Get content from TinyMCE
+                let body = '';
+                if (quill) {
+                    const html = quill.root.innerHTML;
+                    if (html.trim() && html !== '<p><br></p>') {
+                        body = htmlToMarkdown(html);
+                    }
+                }
 
                 document.getElementById('yaml-preview').textContent = yaml;
+                document.getElementById('preview-content').innerHTML = markdownToHtml(body);
+            }
 
-                const html = marked.parse(body || '*Escreva o conteúdo do artigo acima para ver o preview...*');
-                document.getElementById('preview-content').innerHTML = html;
+            // Update word count
+            function updateWordCount() {
+                if (!quill) return;
+
+                const text = quill.getText().trim();
+                const words = text ? text.split(/\s+/).length : 0;
+                const readTime = Math.max(1, Math.ceil(words / 200));
+
+                document.getElementById('word-count').textContent = words;
+                document.getElementById('read-time').textContent = readTime + ' min';
             }
 
             // Tags management
@@ -844,6 +1002,7 @@
                 document.getElementById('btn-novo').hidden = true;
                 document.getElementById('list-section').hidden = true;
                 document.getElementById('preview-section').hidden = true;
+                document.getElementById('word-count-bar').hidden = true;
                 currentSlug = null;
                 currentSha = null;
             });
@@ -852,15 +1011,42 @@
                 input.type = input.type === 'password' ? 'text' : 'password';
             });
 
-            // Auto-update preview on input
-            ['field-title', 'field-slug', 'field-date', 'field-status', 'field-language',
-             'field-seo-title', 'field-seo-desc', 'field-en-title', 'field-en-body', 'field-body'].forEach(function (id) {
-                document.getElementById(id).addEventListener('input', updatePreview);
-            });
-
             // Initialize
             document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
             loadToken();
+
+            // Initialize TinyMCE
+            tinymce.init({
+                selector: '#field-body',
+                height: 400,
+                language: 'pt_BR',
+                plugins: 'lists link image code table autosave',
+                toolbar: [
+                    'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify',
+                    'bullist numlist outdent indent | link image table code | removeformat'
+                ],
+                menubar: 'file edit view insert format tools',
+                menu: {
+                    file: { title: 'Arquivo', items: 'newdocument restoredraft | preview' },
+                    edit: { title: 'Editar', items: 'undo redo | cut copy paste pastetext selectall | searchreplace' },
+                    view: { title: 'Visualizar', items: 'code | visualaid visualchars visualblocks | spellchecker | preview fullscreen' },
+                    insert: { title: 'Inserir', items: 'image link media template codesample inserttable | charmap emoticons hr | pagebreak nonbreaking anchor toc | insertdatetime' },
+                    format: { title: 'Formatar', items: 'bold italic underline strikethrough superscript subscript codeformat | blocks fontname fontsize | forecolor backcolor | formathelper | alignleft aligncenter alignright alignjustify | indent outdent | lineheight' },
+                    tools: { title: 'Ferramentas', items: 'spellchecker code wordcount' },
+                    table: { title: 'Tabela', items: 'inserttable tableprops deletetable | cell row column' }
+                },
+                setup: function (editor) {
+                    editor.on('NodeChange KeyUp SetContent change', function () {
+                        updatePreview();
+                        updateWordCount();
+                    });
+                },
+                placeholder: 'Escreva seu artigo aqui... Use a barra de ferramentas para formatar.',
+                content_style: 'body { font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 16px; line-height: 1.8; }',
+                branding: false,
+                statusbar: true,
+                autoresize_bottom_margin: 0
+            });
 
             // If token exists, auto-authenticate
             if (authToken) {
